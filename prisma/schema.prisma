@@ -6,6 +6,157 @@ datasource db {
   provider = "postgresql"
 }
 
+model Pengguna {
+  id         String       @id @default(cuid())
+  username   String       @unique
+  password   String
+  nama       String
+  role       Role
+  isAktif    Boolean      @default(true)
+  createdAt  DateTime     @default(now())
+  updatedAt  DateTime     @updatedAt
+  deletedAt  DateTime?
+  mahasiswa  Mahasiswa?
+  pengajar   Pengajar?
+  permohonan Permohonan[]
+
+  @@map("pengguna")
+}
+
+model Mahasiswa {
+  id           String         @id @default(cuid())
+  nim          String         @unique
+  penggunaId   String         @unique
+  tipeKelas    TipeKelas
+  dataPresensi DataPresensi[]
+  pengguna     Pengguna       @relation(fields: [penggunaId], references: [id])
+
+  @@map("mahasiswa")
+}
+
+model Pengajar {
+  id           String         @id @default(cuid())
+  nip          String         @unique
+  penggunaId   String         @unique
+  pengguna     Pengguna       @relation(fields: [penggunaId], references: [id])
+  sesiPresensi SesiPresensi[]
+
+  @@map("pengajar")
+}
+
+model MataKuliah {
+  id         String  @id @default(cuid())
+  idMatkul   String  @unique
+  kodeMatkul String  @unique
+  namaMatkul String
+  sks        Int
+  kelas      Kelas[]
+
+  @@map("mata_kuliah")
+}
+
+model Ruangan {
+  id          String   @id @default(cuid())
+  idRuangan   String   @unique
+  namaRuangan String
+  jadwal      Jadwal[]
+
+  @@map("ruangan")
+}
+
+model Kelas {
+  id           String     @id @default(cuid())
+  idKelas      String     @unique
+  namaKelas    String
+  mataKuliahId String
+  jadwal       Jadwal[]
+  mataKuliah   MataKuliah @relation(fields: [mataKuliahId], references: [id])
+
+  @@map("kelas")
+}
+
+model Jadwal {
+  id           String         @id @default(cuid())
+  idJadwal     String         @unique
+  hari         String
+  jamMulai     DateTime
+  jamSelesai   DateTime
+  kelasId      String
+  ruanganId    String
+  kelas        Kelas          @relation(fields: [kelasId], references: [id])
+  ruangan      Ruangan        @relation(fields: [ruanganId], references: [id])
+  sesiPresensi SesiPresensi[]
+
+  @@map("jadwal")
+}
+
+model SesiPresensi {
+  id           String         @id @default(cuid())
+  idSesi       String         @unique @default(cuid())
+  jadwalId     String
+  pengajarId   String
+  qrToken      String         @unique
+  waktuBuka    DateTime       @default(now())
+  autoCloseAt  DateTime
+  statusSesi   StatusSesi     @default(AKTIF)
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
+  dataPresensi DataPresensi[]
+  jadwal       Jadwal         @relation(fields: [jadwalId], references: [id])
+  pengajar     Pengajar       @relation(fields: [pengajarId], references: [id])
+
+  @@map("sesi_presensi")
+}
+
+model DataPresensi {
+  id              String          @id @default(cuid())
+  idPresensi      String          @unique @default(cuid())
+  mahasiswaId     String
+  sesiId          String
+  statusKehadiran StatusKehadiran
+  metodeInput     MetodeInput
+  waktuAbsen      DateTime        @default(now())
+  fileBukti       String?
+  geoLat          Float?
+  geoLng          Float?
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+  mahasiswa       Mahasiswa       @relation(fields: [mahasiswaId], references: [id])
+  sesiPresensi    SesiPresensi    @relation(fields: [sesiId], references: [id])
+
+  @@unique([mahasiswaId, sesiId])
+  @@map("data_presensi")
+}
+
+model Permohonan {
+  id               String           @id @default(cuid())
+  idPermohonan     String           @unique @default(cuid())
+  penggunaId       String
+  jenisPermohonan  JenisPermohonan
+  deskripsiMasalah String
+  tanggalKelas     DateTime
+  fileBukti        String?
+  status           StatusPermohonan @default(MENUNGGU_DIPROSES)
+  catatanReview    String?
+  createdAt        DateTime         @default(now())
+  updatedAt        DateTime         @updatedAt
+  pengguna         Pengguna         @relation(fields: [penggunaId], references: [id])
+
+  @@map("permohonan")
+}
+
+model AuditLog {
+  id         String   @id @default(cuid())
+  penggunaId String
+  aksi       String
+  tabel      String
+  dataLama   Json?
+  dataBaru   Json?
+  createdAt  DateTime @default(now())
+
+  @@map("audit_log")
+}
+
 enum Role {
   ADMIN
   DOSEN
@@ -49,163 +200,4 @@ enum JenisPermohonan {
   DATA_ERROR
   DISPENSASI
   LAINNYA
-}
-
-model Pengguna {
-  id        String   @id @default(cuid())
-  username  String   @unique
-  password  String
-  nama      String
-  role      Role
-  isAktif   Boolean  @default(true)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  deletedAt DateTime?
-
-  mahasiswa   Mahasiswa?
-  pengajar    Pengajar?
-  permohonan  Permohonan[]
-
-  @@map("pengguna")
-}
-
-model Mahasiswa {
-  id        String    @id @default(cuid())
-  nim       String    @unique
-  penggunaId String   @unique
-  pengguna  Pengguna  @relation(fields: [penggunaId], references: [id])
-  tipeKelas TipeKelas
-
-  dataPresensi DataPresensi[]
-
-  @@map("mahasiswa")
-}
-
-model Pengajar {
-  id         String   @id @default(cuid())
-  nip        String   @unique
-  penggunaId String   @unique
-  pengguna   Pengguna @relation(fields: [penggunaId], references: [id])
-
-  sesiPresensi SesiPresensi[]
-
-  @@map("pengajar")
-}
-
-model MataKuliah {
-  id          String @id @default(cuid())
-  idMatkul    String @unique
-  kodeMatkul  String @unique
-  namaMatkul  String
-  sks         Int
-
-  kelas Kelas[]
-
-  @@map("mata_kuliah")
-}
-
-model Ruangan {
-  id          String @id @default(cuid())
-  idRuangan   String @unique
-  namaRuangan String
-
-  jadwal Jadwal[]
-
-  @@map("ruangan")
-}
-
-model Kelas {
-  id           String     @id @default(cuid())
-  idKelas      String     @unique
-  namaKelas    String
-  mataKuliahId String
-  mataKuliah   MataKuliah @relation(fields: [mataKuliahId], references: [id])
-
-  jadwal Jadwal[]
-
-  @@map("kelas")
-}
-
-model Jadwal {
-  id         String   @id @default(cuid())
-  idJadwal   String   @unique
-  hari       String
-  jamMulai   DateTime
-  jamSelesai DateTime
-  kelasId    String
-  kelas      Kelas    @relation(fields: [kelasId], references: [id])
-  ruanganId  String
-  ruangan    Ruangan  @relation(fields: [ruanganId], references: [id])
-
-  sesiPresensi SesiPresensi[]
-
-  @@map("jadwal")
-}
-
-model SesiPresensi {
-  id          String     @id @default(cuid())
-  idSesi      String     @unique @default(cuid())
-  jadwalId    String
-  jadwal      Jadwal     @relation(fields: [jadwalId], references: [id])
-  pengajarId  String
-  pengajar    Pengajar   @relation(fields: [pengajarId], references: [id])
-  qrToken     String     @unique
-  waktuBuka   DateTime   @default(now())
-  autoCloseAt DateTime
-  statusSesi  StatusSesi @default(AKTIF)
-  createdAt   DateTime   @default(now())
-  updatedAt   DateTime   @updatedAt
-
-  dataPresensi DataPresensi[]
-
-  @@map("sesi_presensi")
-}
-
-model DataPresensi {
-  id            String          @id @default(cuid())
-  idPresensi    String          @unique @default(cuid())
-  mahasiswaId   String
-  mahasiswa     Mahasiswa       @relation(fields: [mahasiswaId], references: [id])
-  sesiId        String
-  sesiPresensi  SesiPresensi    @relation(fields: [sesiId], references: [id])
-  statusKehadiran StatusKehadiran
-  metodeInput   MetodeInput
-  waktuAbsen    DateTime        @default(now())
-  fileBukti     String?
-  geoLat        Float?
-  geoLng        Float?
-  createdAt     DateTime        @default(now())
-  updatedAt     DateTime        @updatedAt
-
-  @@unique([mahasiswaId, sesiId])
-  @@map("data_presensi")
-}
-
-model Permohonan {
-  id              String           @id @default(cuid())
-  idPermohonan    String           @unique @default(cuid())
-  penggunaId      String
-  pengguna        Pengguna         @relation(fields: [penggunaId], references: [id])
-  jenisPermohonan JenisPermohonan
-  deskripsiMasalah String
-  tanggalKelas    DateTime
-  fileBukti       String?
-  status          StatusPermohonan @default(MENUNGGU_DIPROSES)
-  catatanReview   String?
-  createdAt       DateTime         @default(now())
-  updatedAt       DateTime         @updatedAt
-
-  @@map("permohonan")
-}
-
-model AuditLog {
-  id         String   @id @default(cuid())
-  penggunaId String
-  aksi       String
-  tabel      String
-  dataLama   Json?
-  dataBaru   Json?
-  createdAt  DateTime @default(now())
-
-  @@map("audit_log")
 }
