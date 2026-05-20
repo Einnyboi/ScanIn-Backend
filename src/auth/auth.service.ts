@@ -13,31 +13,35 @@ export class AuthService {
   ) {}
 
   async register(dto: RegisterDto) {
-    const user = await this.users.create(dto);
-    return this.signToken(user.id, user.username, String(user.role));
+    const pengguna = await this.users.create(dto);
+    return this.signToken(pengguna.id, pengguna.username, pengguna.role);
   }
 
   async login(dto: LoginDto) {
-    const user = await this.users.findByEmail(dto.email);
-    if (!user) throw new UnauthorizedException('Email atau password salah');
+    const pengguna = await this.users.findByUsername(dto.username);
+    if (!pengguna)
+      throw new UnauthorizedException('Username atau password salah');
 
-    const valid = await bcrypt.compare(dto.password, user.password);
-    if (!valid) throw new UnauthorizedException('Email atau password salah');
+    if (!pengguna.isAktif)
+      throw new UnauthorizedException('Akun dinonaktifkan, hubungi Admin');
 
-    return this.signToken(user.id, user.username, String(user.role));
+    const valid = await bcrypt.compare(dto.password, pengguna.password);
+    if (!valid) throw new UnauthorizedException('Username atau password salah');
+
+    return this.signToken(pengguna.id, pengguna.username, pengguna.role);
   }
 
   async me(userId: string) {
-    const user = await this.users.findById(userId);
-    if (!user) throw new UnauthorizedException();
-    const { password, ...result } = user;
+    const pengguna = await this.users.findById(userId);
+    if (!pengguna) throw new UnauthorizedException('Pengguna tidak ditemukan');
+
+    const { password: _password, ...result } = pengguna;
     return result;
   }
 
   private signToken(userId: string, username: string, role: string) {
-    const payload = { sub: userId, email: username, role };
     return {
-      access_token: this.jwt.sign(payload),
+      access_token: this.jwt.sign({ sub: userId, username, role }),
       role,
     };
   }
