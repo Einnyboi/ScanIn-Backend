@@ -21,7 +21,7 @@ export class SesiService {
     // 1. Cari pengajar
     const pengajar = await this.prisma.pengajar.findUnique({
       where: { penggunaId: pengguna.id },
-    })
+    });
     if (!pengajar) throw new ForbiddenException('Hanya pengajar yang bisa membuka sesi')
 
     // 2. Cari jadwal
