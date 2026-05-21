@@ -30,7 +30,8 @@ export class AuthService {
   async me(userId: string) {
     const user = await this.users.findById(userId);
     if (!user) throw new UnauthorizedException();
-    const { password, ...result } = user;
+    const { password: omittedPassword, ...result } = user;
+    void omittedPassword;
     return result;
   }
 
