@@ -3,6 +3,7 @@ import { ConfigService } from '@nestjs/config';
 import * as nodemailer from 'nodemailer';
 
 type EmailStatus = 'SENT' | 'SMTP_NOT_CONFIGURED' | 'FAILED';
+type SmtpStatus = 'READY' | 'NOT_CONFIGURED';
 
 export type PasswordResetDto = {
   id: string;
@@ -35,47 +36,62 @@ export class PasswordResetsService {
     const exists = this.requests.some((item) => item.id === request.id);
 
     if (!exists) {
-      this.requests = [request, ...this.requests];
+      this.requests = [{ ...request, status: 'Baru' }, ...this.requests];
     }
 
     return request;
   }
 
-  async requestReset(request: PasswordResetDto) {
-    const storedRequest = this.create(request);
-    const emailStatus = await this.sendResetEmail(storedRequest);
-
-    this.requests = this.requests.map((item) =>
-      item.id === storedRequest.id ? { ...item, emailStatus } : item,
-    );
-
-    return { ...storedRequest, emailStatus };
+  requestReset(request: PasswordResetDto) {
+    return this.create({
+      ...request,
+      status: 'Baru',
+      sentAt: undefined,
+      emailStatus: undefined,
+      resetUrl: undefined,
+    });
   }
 
   async markAsSent(id: string) {
     const sentAt = new Date().toISOString();
     const request = this.requests.find((item) => item.id === id);
-    const emailStatus = request ? await this.sendResetEmail(request) : 'FAILED';
+    const delivery = request
+      ? await this.sendResetEmail(request)
+      : { emailStatus: 'FAILED' as const };
 
     this.requests = this.requests.map((request) =>
       request.id === id
-        ? { ...request, status: 'Dikirim', sentAt, emailStatus }
+        ? {
+            ...request,
+            status: delivery.emailStatus === 'SENT' ? 'Dikirim' : 'Baru',
+            sentAt: delivery.emailStatus === 'SENT' ? sentAt : request.sentAt,
+            resetUrl: delivery.resetUrl ?? request.resetUrl,
+            emailStatus: delivery.emailStatus,
+          }
         : request,
     );
     return this.requests.find((request) => request.id === id);
   }
 
-  private async sendResetEmail(
-    request: PasswordResetDto,
-  ): Promise<EmailStatus> {
-    const host = this.configService.get<string>('SMTP_HOST');
-    const port = Number(this.configService.get<string>('SMTP_PORT') ?? 587);
-    const user = this.configService.get<string>('SMTP_USER');
-    const pass = this.configService.get<string>('SMTP_PASS');
-    const from = this.configService.get<string>('SMTP_FROM') ?? user;
+  getSmtpStatus() {
+    const config = this.getSmtpConfig();
 
-    if (!host || !user || !pass || !from) {
-      return 'SMTP_NOT_CONFIGURED';
+    return {
+      status: config ? ('READY' as SmtpStatus) : ('NOT_CONFIGURED' as SmtpStatus),
+      host: config?.host ?? null,
+      port: config?.port ?? null,
+      from: config?.from ?? null,
+    };
+  }
+
+  private async sendResetEmail(request: PasswordResetDto): Promise<{
+    emailStatus: EmailStatus;
+    resetUrl?: string;
+  }> {
+    const config = this.getSmtpConfig();
+
+    if (!config) {
+      return { emailStatus: 'SMTP_NOT_CONFIGURED' };
     }
 
     const frontendUrl =
@@ -84,18 +100,18 @@ export class PasswordResetsService {
       request.id,
     )}`;
     const transporter = nodemailer.createTransport({
-      host,
-      port,
-      secure: port === 465,
+      host: config.host,
+      port: config.port,
+      secure: config.secure,
       auth: {
-        user,
-        pass,
+        user: config.user,
+        pass: config.pass,
       },
     });
 
     try {
       await transporter.sendMail({
-        from,
+        from: config.from,
         to: request.registeredEmail,
         subject: 'Reset Password ScanIn FTI UNTAR',
         text: [
@@ -114,9 +130,53 @@ export class PasswordResetsService {
         `,
       });
 
-      return 'SENT';
-    } catch {
-      return 'FAILED';
+      return { emailStatus: 'SENT', resetUrl };
+    } catch (error) {
+      console.error('Failed to send reset password email', error);
+      return { emailStatus: 'FAILED', resetUrl };
     }
+  }
+
+  private getSmtpConfig() {
+    const service = this.getCleanEnv('SMTP_SERVICE')?.toLowerCase();
+    const user = this.getCleanEnv('SMTP_USER');
+    const pass = this.getCleanEnv('SMTP_PASS');
+    const host = this.getCleanEnv('SMTP_HOST') ?? this.getServiceHost(service);
+    const port = Number(this.getCleanEnv('SMTP_PORT') ?? 587);
+    const from = this.getCleanEnv('SMTP_FROM') ?? user;
+    const secure =
+      this.getCleanEnv('SMTP_SECURE') === 'true' || Number(port) === 465;
+
+    if (!host || !user || !pass || !from) {
+      return null;
+    }
+
+    return {
+      host,
+      port,
+      secure,
+      user,
+      pass,
+      from,
+    };
+  }
+
+  private getServiceHost(service?: string) {
+    if (service === 'gmail') return 'smtp.gmail.com';
+    if (service === 'outlook' || service === 'office365') {
+      return 'smtp.office365.com';
+    }
+
+    return undefined;
+  }
+
+  private getCleanEnv(key: string) {
+    const value = this.configService.get<string>(key)?.trim();
+
+    if (!value || value.startsWith('isi_') || value.includes('your_')) {
+      return undefined;
+    }
+
+    return value;
   }
 }

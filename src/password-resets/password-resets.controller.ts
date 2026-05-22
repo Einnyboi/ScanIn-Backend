@@ -11,6 +11,11 @@ export class PasswordResetsController {
     return this.passwordResetsService.findAll();
   }
 
+  @Get('smtp-status')
+  getSmtpStatus() {
+    return this.passwordResetsService.getSmtpStatus();
+  }
+
   @Put()
   replaceAll(@Body() requests: PasswordResetDto[]) {
     return this.passwordResetsService.replaceAll(requests);
