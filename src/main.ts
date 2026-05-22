@@ -1,20 +1,28 @@
-import { NestFactory } from '@nestjs/core'
-import { AppModule } from './app.module'
-import { ValidationPipe } from '@nestjs/common'
+import { NestFactory } from '@nestjs/core';
+import { AppModule } from './app.module';
+import { ValidationPipe } from '@nestjs/common';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule)
+  const app = await NestFactory.create(AppModule);
 
-  app.useGlobalPipes(new ValidationPipe({ whitelist: true, transform: true }))
+  app.useGlobalPipes(new ValidationPipe({ whitelist: true, transform: true }));
+
+  const frontendOrigins = [
+    process.env.FRONTEND_URL,
+    'http://localhost:5173',
+    'http://127.0.0.1:5173',
+  ].filter(Boolean) as string[];
 
   app.enableCors({
-    origin: process.env.FRONTEND_URL ?? 'http://localhost:5173',
+    origin: frontendOrigins,
     credentials: true,
-  })
+  });
 
-  app.setGlobalPrefix('api')
+  app.setGlobalPrefix('api');
 
-  await app.listen(process.env.PORT ?? 3000)
-  console.log(`Backend running on http://localhost:${process.env.PORT ?? 3000}`)
+  await app.listen(process.env.PORT ?? 3000);
+  console.log(
+    `Backend running on http://localhost:${process.env.PORT ?? 3000}`,
+  );
 }
-bootstrap()
+void bootstrap();
