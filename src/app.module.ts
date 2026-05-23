@@ -16,6 +16,7 @@ import { TicketsModule } from './tickets/tickets.module';
 import { AttendanceRecordsModule } from './attendance-records/attendance-records.module';
 import { SesiModule } from './sesi/sesi.module';
 import { PresensiModule } from './presensi/presensi.module';
+import { TiketModule } from './tiket/tiket.module';
 
 @Module({
   imports: [
@@ -38,6 +39,7 @@ import { PresensiModule } from './presensi/presensi.module';
     AttendanceRecordsModule,
     SesiModule,
     PresensiModule,
+    TiketModule,
   ],
 })
 export class AppModule {}
