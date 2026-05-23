@@ -9,23 +9,23 @@ export class UsersService {
 
   async create(dto: RegisterDto) {
     const existing = await this.prisma.pengguna.findUnique({
-      where: { username: dto.email },
+      where: { username: dto.username },
     });
-    if (existing) throw new ConflictException('Email sudah terdaftar');
+    if (existing) throw new ConflictException('Username sudah terdaftar');
 
     const hashed = await bcrypt.hash(dto.password, 10);
     return this.prisma.pengguna.create({
       data: {
-        username: dto.email,
+        username: dto.username,
         password: hashed,
-        nama: dto.name,
+        nama: dto.nama,
         role: dto.role,
       },
     });
   }
 
-  async findByEmail(email: string) {
-    return this.prisma.pengguna.findUnique({ where: { username: email } });
+  async findByUsername(username: string) {
+    return this.prisma.pengguna.findUnique({ where: { username } });
   }
 
   async findById(id: string) {
