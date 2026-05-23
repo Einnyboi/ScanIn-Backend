@@ -32,10 +32,10 @@ export class AuthService {
   }
 
   async me(userId: string) {
-    const pengguna = await this.users.findById(userId);
-    if (!pengguna) throw new UnauthorizedException('Pengguna tidak ditemukan');
-
-    const { password: _password, ...result } = pengguna;
+    const user = await this.users.findById(userId);
+    if (!user) throw new UnauthorizedException();
+    const { password: omittedPassword, ...result } = user;
+    void omittedPassword;
     return result;
   }
 
