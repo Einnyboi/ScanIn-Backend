@@ -8,6 +8,7 @@ import { AuthModule } from './auth/auth.module';
 import { QrModule } from './qr/qr.module';
 import { SesiModule } from './sesi/sesi.module';
 import { PresensiModule } from './presensi/presensi.module';
+import { TiketModule } from './tiket/tiket.module';
 
 @Module({
   imports: [
@@ -22,6 +23,7 @@ import { PresensiModule } from './presensi/presensi.module';
     QrModule,
     SesiModule,
     PresensiModule,
+    TiketModule,
   ],
 })
 export class AppModule {}
