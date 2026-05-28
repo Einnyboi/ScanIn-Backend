@@ -1,62 +1,92 @@
+/* eslint-disable @typescript-eslint/no-unsafe-assignment,@typescript-eslint/no-unsafe-member-access,@typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-argument */
 import { Injectable } from '@nestjs/common';
-
-export type CorrectionTicketDto = {
-  id: string;
-  studentId: string;
-  studentName: string;
-  courseTitle: string;
-  lecturer?: string;
-  date: string;
-  reason: string;
-  status: 'Menunggu' | 'Disetujui' | 'Ditolak';
-  submittedAt?: string;
-};
+import { PrismaService } from '../prisma/prisma.service';
+import { StatusPermohonan, JenisPermohonan } from '@prisma/client';
 
 @Injectable()
 export class TicketsService {
-  private tickets: CorrectionTicketDto[] = [];
+  constructor(private prisma: PrismaService) {}
 
-  findAll() {
-    return this.tickets;
+  async findAll() {
+    const permohonan = await this.prisma.permohonan.findMany({
+      include: {
+        pengguna: {
+          select: {
+            id: true,
+            nama: true,
+            username: true,
+            role: true,
+          },
+        },
+      },
+      orderBy: { createdAt: 'desc' },
+    });
+    return permohonan.map((p) => this.toTicketDto(p));
   }
 
-  replaceAll(tickets: CorrectionTicketDto[]) {
-    this.tickets = tickets.map((ticket) => this.normalizeTicket(ticket));
-    return this.tickets;
+  async create(ticket: any) {
+    const created = await this.prisma.permohonan.create({
+      data: {
+        penggunaId: ticket.studentId,
+        jenisPermohonan: JenisPermohonan.KELUHAN_ABSENSI,
+        deskripsiMasalah: ticket.reason,
+        tanggalKelas: new Date(ticket.date),
+        status: StatusPermohonan.MENUNGGU_DIPROSES,
+      },
+      include: {
+        pengguna: { select: { id: true, nama: true, username: true } },
+      },
+    });
+    return this.toTicketDto(created);
   }
 
-  create(ticket: CorrectionTicketDto) {
-    const nextTicket = this.normalizeTicket(ticket);
-    this.tickets = [
-      nextTicket,
-      ...this.tickets.filter((item) => item.id !== nextTicket.id),
-    ];
-    return nextTicket;
+  async update(id: string, ticket: any) {
+    const updated = await this.prisma.permohonan.update({
+      where: { id },
+      data: {
+        status: this.mapStatus(ticket.status),
+        catatanReview: ticket.reason,
+      },
+      include: {
+        pengguna: { select: { id: true, nama: true, username: true } },
+      },
+    });
+    return this.toTicketDto(updated);
   }
 
-  update(id: string, ticket: CorrectionTicketDto) {
-    const nextTicket = this.normalizeTicket({ ...ticket, id });
-    this.tickets = this.tickets.map((item) =>
-      item.id === id ? nextTicket : item,
-    );
-    return nextTicket;
-  }
-
-  remove(id: string) {
-    this.tickets = this.tickets.filter((ticket) => ticket.id !== id);
+  async remove(id: string) {
+    await this.prisma.permohonan.delete({ where: { id } });
     return { deleted: true, id };
   }
 
-  private normalizeTicket(ticket: CorrectionTicketDto): CorrectionTicketDto {
+  async replaceAll() {
+    // replaceAll dari frontend — skip, tidak aman untuk production
+    // Return data dari DB aja
+    return this.findAll();
+  }
+
+  private toTicketDto(p: any) {
     return {
-      ...ticket,
-      id: ticket.id.trim(),
-      studentId: ticket.studentId.trim(),
-      studentName: ticket.studentName.trim(),
-      courseTitle: ticket.courseTitle.trim(),
-      reason: ticket.reason.trim(),
-      date: ticket.date.trim(),
-      lecturer: ticket.lecturer?.trim(),
+      id: p.id,
+      studentId: p.penggunaId,
+      studentName: p.pengguna?.nama ?? '',
+      courseTitle: p.deskripsiMasalah ?? '',
+      date: p.tanggalKelas?.toISOString().split('T')[0] ?? '',
+      reason: p.deskripsiMasalah ?? '',
+      status: this.mapStatusToFrontend(p.status),
+      submittedAt: p.createdAt?.toISOString(),
     };
+  }
+
+  private mapStatus(status: string): StatusPermohonan {
+    if (status === 'Disetujui') return StatusPermohonan.SELESAI;
+    if (status === 'Ditolak') return StatusPermohonan.DITOLAK;
+    return StatusPermohonan.MENUNGGU_DIPROSES;
+  }
+
+  private mapStatusToFrontend(status: StatusPermohonan): string {
+    if (status === StatusPermohonan.SELESAI) return 'Disetujui';
+    if (status === StatusPermohonan.DITOLAK) return 'Ditolak';
+    return 'Menunggu';
   }
 }

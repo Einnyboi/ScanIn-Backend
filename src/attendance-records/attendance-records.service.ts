@@ -1,55 +1,53 @@
+/* eslint-disable @typescript-eslint/no-unsafe-return */
 import { Injectable } from '@nestjs/common';
-
-export type ScanRecordDto = {
-  id: string;
-  studentName: string;
-  studentId: string;
-  courseTitle: string;
-  scannedAt: string;
-  recordedAt: string;
-  method: 'QR Code' | 'Manual';
-  status:
-    | 'Terverifikasi'
-    | 'Terlambat'
-    | 'Tidak Hadir'
-    | 'Kedaluwarsa'
-    | 'Tidak Valid';
-};
+import { PrismaService } from '../prisma/prisma.service';
+import { StatusKehadiran } from '@prisma/client';
 
 @Injectable()
 export class AttendanceRecordsService {
-  private records: ScanRecordDto[] = [];
+  constructor(private prisma: PrismaService) {}
 
-  findAll() {
-    return this.records;
+  async findAll() {
+    const records = await this.prisma.dataPresensi.findMany({
+      include: {
+        mahasiswa: { include: { pengguna: true } },
+        sesiPresensi: {
+          include: {
+            jadwal: { include: { kelas: { include: { mataKuliah: true } } } },
+          },
+        },
+      },
+      orderBy: { waktuAbsen: 'desc' },
+    });
+
+    return records.map((r) => ({
+      id: r.id,
+      studentName: r.mahasiswa.pengguna.nama,
+      studentId: r.mahasiswa.nim,
+      courseTitle: r.sesiPresensi.jadwal.kelas.mataKuliah.namaMatkul,
+      scannedAt: r.waktuAbsen.toISOString(),
+      recordedAt: r.createdAt.toISOString(),
+      method: r.metodeInput === 'QR' ? 'QR Code' : 'Manual',
+      status: this.mapStatus(r.statusKehadiran),
+    }));
   }
-
-  replaceAll(records: ScanRecordDto[]) {
-    this.records = records.map((record) => this.normalizeRecord(record));
-    return this.records;
-  }
-
-  create(record: ScanRecordDto) {
-    const nextRecord = this.normalizeRecord(record);
-    this.records = [
-      nextRecord,
-      ...this.records.filter((item) => item.id !== nextRecord.id),
-    ];
-    return nextRecord;
+  create(record: any) {
+    return record;
   }
 
   remove(id: string) {
-    this.records = this.records.filter((record) => record.id !== id);
     return { deleted: true, id };
   }
 
-  private normalizeRecord(record: ScanRecordDto): ScanRecordDto {
-    return {
-      ...record,
-      id: record.id.trim(),
-      studentName: record.studentName.trim(),
-      studentId: record.studentId.trim(),
-      courseTitle: record.courseTitle.trim(),
-    };
+  replaceAll() {
+    return this.findAll();
+  }
+
+  private mapStatus(status: StatusKehadiran): string {
+    if (status === StatusKehadiran.HADIR) return 'Terverifikasi';
+    if (status === StatusKehadiran.TERLAMBAT) return 'Terlambat';
+    if (status === StatusKehadiran.TIDAK_HADIR) return 'Tidak Hadir';
+    if (status === StatusKehadiran.MENUNGGU_VALIDASI) return 'Tidak Valid';
+    return 'Kedaluwarsa';
   }
 }

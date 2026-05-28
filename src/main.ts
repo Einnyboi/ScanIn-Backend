@@ -21,13 +21,6 @@ async function bootstrap() {
 
   app.setGlobalPrefix('api');
 
-  await app.listen(process.env.PORT ?? 3000);
-  console.log(
-    `Backend running on http://localhost:${process.env.PORT ?? 3000}`,
-  );
-}
-void bootstrap();
-  // Swagger setup
   const config = new DocumentBuilder()
     .setTitle('ScanIn API')
     .setDescription('API dokumentasi Sistem Presensi Mahasiswa FTI')
