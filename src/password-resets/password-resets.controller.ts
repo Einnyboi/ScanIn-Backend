@@ -35,8 +35,8 @@ export class PasswordResetsController {
   }
 
   @Patch(':id/send')
-  markAsSent(@Param('id') id: string) {
-    return this.passwordResetsService.markAsSent(id);
+  markAsSent(@Param('id') id: string, @Body() request?: PasswordResetDto) {
+    return this.passwordResetsService.markAsSent(id, request);
   }
 
   @Post(':id/reset')

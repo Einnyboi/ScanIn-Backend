@@ -21,8 +21,8 @@ export class AdminUsersController {
   }
 
   @Put()
-  replaceAll(@Body() users: AdminUserDto[]) {
-    return this.adminUsersService.replaceAll(users);
+  replaceAll() {
+    return this.adminUsersService.replaceAll();
   }
 
   @Post()

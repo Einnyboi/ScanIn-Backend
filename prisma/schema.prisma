@@ -28,7 +28,9 @@ model Mahasiswa {
   nim          String         @unique
   penggunaId   String         @unique
   tipeKelas    TipeKelas
+  kelasRombel  String?
   dataPresensi DataPresensi[]
+  kelasAssignments MahasiswaKelas[]
   pengguna     Pengguna       @relation(fields: [penggunaId], references: [id])
 
   @@map("mahasiswa")
@@ -70,9 +72,25 @@ model Kelas {
   namaKelas    String
   mataKuliahId String
   jadwal       Jadwal[]
+  mahasiswaAssignments MahasiswaKelas[]
   mataKuliah   MataKuliah @relation(fields: [mataKuliahId], references: [id])
 
   @@map("kelas")
+}
+
+model MahasiswaKelas {
+  id          String    @id @default(cuid())
+  mahasiswaId String
+  kelasId     String
+  isOverride  Boolean   @default(false)
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+
+  mahasiswa   Mahasiswa @relation(fields: [mahasiswaId], references: [id])
+  kelas       Kelas     @relation(fields: [kelasId], references: [id])
+
+  @@unique([mahasiswaId, kelasId])
+  @@map("mahasiswa_kelas")
 }
 
 model Jadwal {

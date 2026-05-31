@@ -20,6 +20,7 @@ export type PasswordResetDto = {
   resetUrl?: string;
   otpExpiresAt?: string;
   emailStatus?: EmailStatus;
+  emailError?: string;
 };
 
 export type ResetPasswordDto = {
@@ -70,12 +71,29 @@ export class PasswordResetsService {
     });
   }
 
-  async markAsSent(id: string) {
+  async markAsSent(id: string, fallbackRequest?: PasswordResetDto) {
     const sentAt = new Date().toISOString();
-    const request = this.requests.find((item) => item.id === id);
+    let request = this.requests.find((item) => item.id === id);
+
+    if (!request && fallbackRequest) {
+      request = this.create({
+        ...fallbackRequest,
+        id,
+        status: 'Baru',
+        sentAt: undefined,
+        emailStatus: undefined,
+        emailError: undefined,
+        resetUrl: undefined,
+        otpExpiresAt: undefined,
+      });
+    }
+
     const delivery = request
       ? await this.sendResetEmail(request)
-      : { emailStatus: 'FAILED' as const };
+      : {
+          emailStatus: 'FAILED' as const,
+          emailError: 'Permintaan reset tidak ditemukan di backend.',
+        };
 
     this.requests = this.requests.map((request) =>
       request.id === id
@@ -86,6 +104,10 @@ export class PasswordResetsService {
             resetUrl: delivery.resetUrl ?? request.resetUrl,
             otpExpiresAt: delivery.otpExpiresAt ?? request.otpExpiresAt,
             emailStatus: delivery.emailStatus,
+            emailError:
+              delivery.emailStatus === 'SENT'
+                ? undefined
+                : delivery.emailError ?? request.emailError,
           }
         : request,
     );
@@ -156,13 +178,20 @@ export class PasswordResetsService {
 
   private async sendResetEmail(request: PasswordResetDto): Promise<{
     emailStatus: EmailStatus;
+    emailError?: string;
     resetUrl?: string;
     otpExpiresAt?: string;
   }> {
-    const config = this.getSmtpConfig();
+    const smtp = this.getSmtpConfigWithDiagnostics();
+    const config = smtp.config;
 
     if (!config) {
-      return { emailStatus: 'SMTP_NOT_CONFIGURED' };
+      return {
+        emailStatus: 'SMTP_NOT_CONFIGURED',
+        emailError: smtp.missing.length
+          ? `Konfigurasi SMTP belum lengkap: ${smtp.missing.join(', ')}.`
+          : 'Konfigurasi SMTP belum lengkap.',
+      };
     }
 
     const frontendUrl =
@@ -230,8 +259,9 @@ export class PasswordResetsService {
         otpExpiresAt: otpExpiresAt.toISOString(),
       };
     } catch (error) {
+      const emailError = this.getErrorMessage(error);
       console.error('Failed to send reset password email', error);
-      return { emailStatus: 'FAILED', resetUrl };
+      return { emailStatus: 'FAILED', resetUrl, emailError };
     }
   }
 
@@ -252,7 +282,7 @@ export class PasswordResetsService {
   } {
     const service = this.getCleanEnv('SMTP_SERVICE')?.toLowerCase();
     const user = this.getCleanEnv('SMTP_USER');
-    const pass = this.getCleanEnv('SMTP_PASS');
+    const pass = this.getSecretEnv('SMTP_PASS');
     const host = this.getCleanEnv('SMTP_HOST') ?? this.getServiceHost(service);
     const port = Number(this.getCleanEnv('SMTP_PORT') ?? 587);
     const from = this.getCleanEnv('SMTP_FROM') ?? user;
@@ -299,6 +329,20 @@ export class PasswordResetsService {
     }
 
     return value;
+  }
+
+  private getSecretEnv(key: string) {
+    const value = this.getCleanEnv(key);
+
+    return value?.replace(/\s/g, '');
+  }
+
+  private getErrorMessage(error: unknown) {
+    if (error instanceof Error && error.message) {
+      return error.message;
+    }
+
+    return 'Email gagal dikirim oleh SMTP.';
   }
 
   private createOtp() {
