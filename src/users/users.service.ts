@@ -31,4 +31,13 @@ export class UsersService {
   async findById(id: string) {
     return this.prisma.pengguna.findUnique({ where: { id } });
   }
+
+  async updatePasswordByEmail(email: string, password: string) {
+    const hashed = await bcrypt.hash(password, 10);
+
+    return this.prisma.pengguna.update({
+      where: { username: email.trim().toLowerCase() },
+      data: { password: hashed },
+    });
+  }
 }
