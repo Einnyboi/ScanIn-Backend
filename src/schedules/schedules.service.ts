@@ -1,10 +1,14 @@
 /* eslint-disable @typescript-eslint/no-unsafe-return */
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
+import { EnrollmentsService } from '../enrollments/enrollments.service';
 
 @Injectable()
 export class SchedulesService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private enrollmentsService: EnrollmentsService,
+  ) {}
 
   async findAll() {
     const jadwal = await this.prisma.jadwal.findMany({
@@ -19,16 +23,21 @@ export class SchedulesService {
       orderBy: { jamMulai: 'asc' },
     });
 
-    return jadwal.map((j) => ({
-      id: j.id,
-      day: j.hari,
-      title: j.kelas.mataKuliah.namaMatkul,
-      time: `${this.formatTime(j.jamMulai)} - ${this.formatTime(j.jamSelesai)}`,
-      room: j.ruangan.namaRuangan,
-      lecturer: '',
-      students: 0,
-      status: j.sesiPresensi.length > 0 ? 'active' : 'upcoming',
-    }));
+    return Promise.all(
+      jadwal.map(async (j) => ({
+        id: j.id,
+        day: j.hari,
+        title: j.kelas.mataKuliah.namaMatkul,
+        className: j.kelas.namaKelas,
+        time: `${this.formatTime(j.jamMulai)} - ${this.formatTime(j.jamSelesai)}`,
+        room: j.ruangan.namaRuangan,
+        lecturer: '',
+        students: await this.enrollmentsService.countMahasiswaForKelas(
+          j.kelas.id,
+        ),
+        status: j.sesiPresensi.length > 0 ? 'active' : 'upcoming',
+      })),
+    );
   }
 
   create(schedule: any) {

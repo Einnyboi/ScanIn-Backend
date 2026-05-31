@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unsafe-assignment,@typescript-eslint/no-unsafe-member-access,@typescript-eslint/no-unsafe-argument */
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
-import { Role } from '@prisma/client';
+import { Role, TipeKelas } from '@prisma/client';
 import * as bcrypt from 'bcryptjs';
 
 export type AdminUserRole = 'Mahasiswa' | 'Pengajar' | 'Admin';
@@ -12,6 +12,8 @@ export type AdminUserDto = {
   email: string;
   role: AdminUserRole;
   status: 'Aktif' | 'Nonaktif';
+  kelasRombel?: string | null;
+  tipeKelas?: TipeKelas | null;
 };
 
 @Injectable()
@@ -20,6 +22,9 @@ export class AdminUsersService {
 
   async findAll(): Promise<AdminUserDto[]> {
     const users = await this.prisma.pengguna.findMany({
+      include: {
+        mahasiswa: true,
+      },
       where: { deletedAt: null },
       orderBy: { createdAt: 'desc' },
     });
@@ -37,7 +42,30 @@ export class AdminUsersService {
         isAktif: user.status === 'Aktif',
       },
     });
-    return this.toDto(created);
+
+    if (created.role === Role.MAHASISWA) {
+      await this.prisma.mahasiswa.upsert({
+        where: { penggunaId: created.id },
+        update: {
+          nim: user.id,
+          kelasRombel: user.kelasRombel ?? null,
+          tipeKelas: user.tipeKelas ?? TipeKelas.PAGI,
+        },
+        create: {
+          nim: user.id,
+          penggunaId: created.id,
+          kelasRombel: user.kelasRombel ?? null,
+          tipeKelas: user.tipeKelas ?? TipeKelas.PAGI,
+        },
+      });
+    }
+
+    const createdWithProfile = await this.prisma.pengguna.findUnique({
+      where: { id: created.id },
+      include: { mahasiswa: true },
+    });
+
+    return this.toDto(createdWithProfile ?? created);
   }
 
   async update(
@@ -54,7 +82,32 @@ export class AdminUsersService {
         role: this.mapRole(user.role),
       },
     });
-    return this.toDto(updated);
+
+    if (updated.role === Role.MAHASISWA) {
+      await this.prisma.mahasiswa.upsert({
+        where: { penggunaId: updated.id },
+        update: {
+          nim: user.id,
+          ...(user.kelasRombel !== undefined
+            ? { kelasRombel: user.kelasRombel }
+            : {}),
+          ...(user.tipeKelas != null ? { tipeKelas: user.tipeKelas } : {}),
+        },
+        create: {
+          nim: user.id,
+          penggunaId: updated.id,
+          kelasRombel: user.kelasRombel ?? null,
+          tipeKelas: user.tipeKelas ?? TipeKelas.PAGI,
+        },
+      });
+    }
+
+    const updatedWithProfile = await this.prisma.pengguna.findUnique({
+      where: { id: updated.id },
+      include: { mahasiswa: true },
+    });
+
+    return this.toDto(updatedWithProfile ?? updated);
   }
 
   async remove(role: AdminUserRole, id: string) {
@@ -77,6 +130,8 @@ export class AdminUsersService {
       email: p.username,
       role: this.mapRoleToFrontend(p.role),
       status: p.isAktif ? 'Aktif' : 'Nonaktif',
+      kelasRombel: p.mahasiswa?.kelasRombel ?? null,
+      tipeKelas: p.mahasiswa?.tipeKelas ?? null,
     };
   }
 
