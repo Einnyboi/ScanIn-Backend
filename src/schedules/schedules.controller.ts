@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unsafe-return */
 import {
   Body,
   Controller,
@@ -9,7 +10,16 @@ import {
   Put,
 } from '@nestjs/common';
 import { SchedulesService } from './schedules.service';
-import type { ScheduleDto } from './schedules.service';
+
+type ScheduleDto = {
+  day?: string;
+  title?: string;
+  time?: string;
+  room?: string;
+  lecturer?: string;
+  students?: number;
+  status?: string;
+};
 
 @Controller('schedules')
 export class SchedulesController {
@@ -21,8 +31,8 @@ export class SchedulesController {
   }
 
   @Put()
-  replaceAll(@Body() schedules: ScheduleDto[]) {
-    return this.schedulesService.replaceAll(schedules);
+  replaceAll() {
+    return this.schedulesService.replaceAll();
   }
 
   @Post()
@@ -36,7 +46,7 @@ export class SchedulesController {
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.schedulesService.remove(id);
+  remove() {
+    return this.schedulesService.remove();
   }
 }

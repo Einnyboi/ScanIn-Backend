@@ -1,6 +1,5 @@
 import { Body, Controller, Delete, Get, Param, Post, Put } from '@nestjs/common';
 import { AttendanceRecordsService } from './attendance-records.service';
-import type { ScanRecordDto } from './attendance-records.service';
 
 @Controller('attendance-records')
 export class AttendanceRecordsController {
@@ -14,12 +13,12 @@ export class AttendanceRecordsController {
   }
 
   @Put()
-  replaceAll(@Body() records: ScanRecordDto[]) {
-    return this.attendanceRecordsService.replaceAll(records);
+  replaceAll() {
+    return this.attendanceRecordsService.replaceAll();
   }
 
   @Post()
-  create(@Body() record: ScanRecordDto) {
+  create(@Body() record: any) {
     return this.attendanceRecordsService.create(record);
   }
 

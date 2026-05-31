@@ -9,7 +9,13 @@ import {
   Put,
 } from '@nestjs/common';
 import { TicketsService } from './tickets.service';
-import type { CorrectionTicketDto } from './tickets.service';
+
+type CorrectionTicketDto = {
+  studentId: string;
+  reason: string;
+  date: string;
+  status?: string;
+};
 
 @Controller('tickets')
 export class TicketsController {
@@ -21,8 +27,8 @@ export class TicketsController {
   }
 
   @Put()
-  replaceAll(@Body() tickets: CorrectionTicketDto[]) {
-    return this.ticketsService.replaceAll(tickets);
+  replaceAll() {
+    return this.ticketsService.replaceAll();
   }
 
   @Post()

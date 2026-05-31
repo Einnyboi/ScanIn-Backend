@@ -18,6 +18,7 @@ import { JwtService } from '@nestjs/jwt';
 import * as path from 'path';
 import * as fs from 'fs';
 import { Multer } from 'multer';
+import { EnrollmentsService } from '../enrollments/enrollments.service';
 
 const BATAS_HADIR_MENIT = 30;
 
@@ -26,6 +27,7 @@ export class PresensiService {
   constructor(
     private prisma: PrismaService,
     private jwt: JwtService,
+    private enrollmentsService: EnrollmentsService,
   ) {}
 
   // ==================== SCAN QR ====================
@@ -59,10 +61,19 @@ export class PresensiService {
     // 3. Cek sesi aktif
     const sesi = await this.prisma.sesiPresensi.findUnique({
       where: { id: dto.sesiId },
+      include: { jadwal: { include: { kelas: true } } },
     });
     if (!sesi) throw new NotFoundException('Sesi tidak ditemukan');
     if (sesi.statusSesi !== StatusSesi.AKTIF) {
       throw new BadRequestException('Sesi presensi sudah tidak aktif');
+    }
+
+    const terdaftar = await this.enrollmentsService.isMahasiswaTerdaftarDiKelas(
+      mahasiswa.id,
+      sesi.jadwal.kelas.id,
+    );
+    if (!terdaftar) {
+      throw new ForbiddenException('Mahasiswa tidak terdaftar di kelas ini');
     }
 
     // 4. Cek apakah sudah presensi di sesi ini
@@ -130,10 +141,19 @@ export class PresensiService {
     // 2. Cek sesi aktif
     const sesi = await this.prisma.sesiPresensi.findUnique({
       where: { id: dto.sesiId },
+      include: { jadwal: { include: { kelas: true } } },
     });
     if (!sesi) throw new NotFoundException('Sesi tidak ditemukan');
     if (sesi.statusSesi !== StatusSesi.AKTIF) {
       throw new BadRequestException('Sesi presensi sudah tidak aktif');
+    }
+
+    const terdaftar = await this.enrollmentsService.isMahasiswaTerdaftarDiKelas(
+      mahasiswa.id,
+      sesi.jadwal.kelas.id,
+    );
+    if (!terdaftar) {
+      throw new ForbiddenException('Mahasiswa tidak terdaftar di kelas ini');
     }
 
     // 3. Cek sudah presensi belum
@@ -215,15 +235,41 @@ export class PresensiService {
     // 3. Cek sesi
     const sesi = await this.prisma.sesiPresensi.findUnique({
       where: { id: dto.sesiId },
+      include: { jadwal: { include: { kelas: true } } },
     });
     if (!sesi) throw new NotFoundException('Sesi tidak ditemukan');
     if (sesi.statusSesi !== StatusSesi.AKTIF) {
       throw new BadRequestException('Sesi presensi sudah tidak aktif');
     }
 
+    const resolvedItems = [] as Array<{ mahasiswaId: string; status: StatusKehadiran }>;
+
+    for (const item of dto.daftarHadir) {
+      const mahasiswa = await this.enrollmentsService.resolveMahasiswaByIdentifier(
+        item.mahasiswaId,
+      );
+      if (!mahasiswa) {
+        throw new NotFoundException(
+          `Mahasiswa ${item.mahasiswaId} tidak ditemukan`,
+        );
+      }
+
+      const terdaftar = await this.enrollmentsService.isMahasiswaTerdaftarDiKelas(
+        mahasiswa.id,
+        sesi.jadwal.kelas.id,
+      );
+      if (!terdaftar) {
+        throw new ForbiddenException(
+          `Mahasiswa ${mahasiswa.nim} tidak terdaftar di kelas ini`,
+        );
+      }
+
+      resolvedItems.push({ mahasiswaId: mahasiswa.id, status: item.status });
+    }
+
     // 4. Upsert presensi manual untuk setiap mahasiswa
     const hasil = await Promise.all(
-      dto.daftarHadir.map((item) =>
+      resolvedItems.map((item) =>
         this.prisma.dataPresensi.upsert({
           where: {
             mahasiswaId_sesiId: {

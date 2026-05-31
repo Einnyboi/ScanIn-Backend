@@ -6,15 +6,17 @@ import {
 } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { BukaSesiDto } from './dto/buka-sesi.dto';
-import { Pengguna, StatusSesi } from '@prisma/client';
+import { Pengguna, StatusSesi, StatusKehadiran, MetodeInput } from '@prisma/client';
 import { randomUUID } from 'crypto';
 import { SchedulerRegistry } from '@nestjs/schedule';
+import { EnrollmentsService } from '../enrollments/enrollments.service';
 
 @Injectable()
 export class SesiService {
   constructor(
     private prisma: PrismaService,
     private schedulerRegistry: SchedulerRegistry,
+    private enrollmentsService: EnrollmentsService,
   ) {}
 
   async bukaSesi(dto: BukaSesiDto, pengguna: Pengguna) {
@@ -202,11 +204,28 @@ export class SesiService {
     });
     const sudahPresensiIds = sudahPresensi.map((p) => p.mahasiswaId);
 
-    // Ambil semua mahasiswa di kelas ini yang belum presensi
-    // Catatan: relasi mahasiswa-kelas perlu ditambah di schema nanti
-    // Untuk sekarang skip dulu — akan diimplementasi setelah relasi kelas-mahasiswa ada
+    const mahasiswaIds = await this.enrollmentsService.getMahasiswaIdsForSesi(
+      sesi.jadwal.kelas.id,
+    );
+    const belumPresensiIds = mahasiswaIds.filter(
+      (mahasiswaId) => !sudahPresensiIds.includes(mahasiswaId),
+    );
+
+    if (belumPresensiIds.length) {
+      await this.prisma.dataPresensi.createMany({
+        data: belumPresensiIds.map((mahasiswaId) => ({
+          mahasiswaId,
+          sesiId,
+          statusKehadiran: StatusKehadiran.TIDAK_HADIR,
+          metodeInput: MetodeInput.MANUAL,
+          waktuAbsen: new Date(),
+        })),
+        skipDuplicates: true,
+      });
+    }
+
     console.log(
-      `[TandaiTidakHadir] Sesi ${sesiId} — ${sudahPresensiIds.length} mahasiswa sudah presensi`,
+      `[TandaiTidakHadir] Sesi ${sesiId} — ${sudahPresensiIds.length} mahasiswa sudah presensi, ${belumPresensiIds.length} ditandai tidak hadir`,
     );
   }
 
