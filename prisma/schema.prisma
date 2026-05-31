@@ -19,6 +19,7 @@ model Pengguna {
   mahasiswa  Mahasiswa?
   pengajar   Pengajar?
   permohonan Permohonan[]
+  passwordResets PasswordReset[]
 
   @@map("pengguna")
 }
@@ -218,4 +219,22 @@ enum JenisPermohonan {
   DATA_ERROR
   DISPENSASI
   LAINNYA
+}
+
+model PasswordReset {
+  id              String   @id @default(cuid())
+  role            String
+  identity        String
+  name            String
+  registeredEmail String
+  status          String
+  createdAt       DateTime @default(now())
+  sentAt          DateTime?
+  resetUrl        String?
+  emailStatus     String?
+  usedAt          DateTime?
+  penggunaId      String?
+  pengguna        Pengguna? @relation(fields: [penggunaId], references: [id])
+
+  @@map("password_resets")
 }

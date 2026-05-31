@@ -1,48 +1,43 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import * as nodemailer from 'nodemailer';
+import { PrismaService } from '../prisma/prisma.service';
+import * as bcrypt from 'bcryptjs';
 
 type EmailStatus = 'SENT' | 'SMTP_NOT_CONFIGURED' | 'FAILED';
 type SmtpStatus = 'READY' | 'NOT_CONFIGURED';
 
-export type PasswordResetDto = {
-  id: string;
-  role: 'mahasiswa' | 'pengajar' | 'admin';
-  identity: string;
-  name: string;
-  registeredEmail: string;
-  status: 'Baru' | 'Dikirim';
-  createdAt: string;
-  sentAt?: string;
-  resetUrl?: string;
-  emailStatus?: EmailStatus;
-};
-
 @Injectable()
 export class PasswordResetsService {
-  private requests: PasswordResetDto[] = [];
-  constructor(private readonly configService: ConfigService) {}
+  constructor(
+    private readonly configService: ConfigService,
+    private readonly prisma: PrismaService,
+  ) {}
 
-  findAll() {
-    return this.requests;
+  async findAll() {
+    return (this.prisma as any).passwordReset.findMany({ orderBy: { createdAt: 'desc' } });
   }
 
-  replaceAll(requests: PasswordResetDto[]) {
-    this.requests = requests;
-    return this.requests;
+  async replaceAll(requests: any[]) {
+    // Replace all: delete existing and create new (careful in production)
+    await (this.prisma as any).passwordReset.deleteMany();
+    const created = await Promise.all(
+      requests.map((r) => (this.prisma as any).passwordReset.create({ data: { ...r } as any })),
+    );
+    return created;
   }
 
-  create(request: PasswordResetDto) {
-    const exists = this.requests.some((item) => item.id === request.id);
+  async create(request: any) {
+    const exists = await (this.prisma as any).passwordReset.findUnique({ where: { id: request.id } });
 
     if (!exists) {
-      this.requests = [{ ...request, status: 'Baru' }, ...this.requests];
+      return (this.prisma as any).passwordReset.create({ data: { ...request, status: 'Baru' } as any });
     }
 
-    return request;
+    return exists;
   }
 
-  requestReset(request: PasswordResetDto) {
+  async requestReset(request: any) {
     return this.create({
       ...request,
       status: 'Baru',
@@ -53,24 +48,47 @@ export class PasswordResetsService {
   }
 
   async markAsSent(id: string) {
-    const sentAt = new Date().toISOString();
-    const request = this.requests.find((item) => item.id === id);
-    const delivery = request
-      ? await this.sendResetEmail(request)
-      : { emailStatus: 'FAILED' as const };
+    const sentAt = new Date();
+    const request = await (this.prisma as any).passwordReset.findUnique({ where: { id } });
+    if (!request) {
+      return null;
+    }
 
-    this.requests = this.requests.map((request) =>
-      request.id === id
-        ? {
-            ...request,
-            status: delivery.emailStatus === 'SENT' ? 'Dikirim' : 'Baru',
-            sentAt: delivery.emailStatus === 'SENT' ? sentAt : request.sentAt,
-            resetUrl: delivery.resetUrl ?? request.resetUrl,
-            emailStatus: delivery.emailStatus,
-          }
-        : request,
-    );
-    return this.requests.find((request) => request.id === id);
+    const delivery = await this.sendResetEmail(request as any);
+
+    const updated = await (this.prisma as any).passwordReset.update({
+      where: { id },
+      data: {
+        status: delivery.emailStatus === 'SENT' ? 'Dikirim' : 'Baru',
+        sentAt: delivery.emailStatus === 'SENT' ? sentAt : request.sentAt,
+        resetUrl: delivery.resetUrl ?? request.resetUrl,
+        emailStatus: delivery.emailStatus,
+      },
+    });
+
+    return updated;
+  }
+
+  async completeReset(id: string, newPassword: string) {
+    const request = await (this.prisma as any).passwordReset.findUnique({ where: { id } });
+
+    if (!request) throw new NotFoundException('Password reset request not found');
+
+    if (request.usedAt) throw new BadRequestException('Reset token already used');
+
+    // Find pengguna by registeredEmail (mapped to username in seed)
+    const pengguna = await this.prisma.pengguna.findUnique({ where: { username: request.registeredEmail } });
+
+    if (!pengguna) throw new NotFoundException('Associated user not found');
+
+    const hashed = await bcrypt.hash(newPassword, 10);
+
+    await this.prisma.pengguna.update({ where: { id: pengguna.id }, data: { password: hashed } });
+
+    const usedAt = new Date();
+    const updated = await (this.prisma as any).passwordReset.update({ where: { id }, data: { usedAt } });
+
+    return { success: true, updated };
   }
 
   getSmtpStatus() {
@@ -84,21 +102,20 @@ export class PasswordResetsService {
     };
   }
 
-  private async sendResetEmail(request: PasswordResetDto): Promise<{
+  private async sendResetEmail(request: any): Promise<{
     emailStatus: EmailStatus;
     resetUrl?: string;
   }> {
     const config = this.getSmtpConfig();
 
+    const frontendUrl = this.configService.get<string>('FRONTEND_URL') ?? 'http://127.0.0.1:5173';
+    const resetUrl = `${frontendUrl}/reset-password?token=${encodeURIComponent(request.id)}`;
+
     if (!config) {
-      return { emailStatus: 'SMTP_NOT_CONFIGURED' };
+      // Return resetUrl so admin can copy it even when SMTP not configured
+      return { emailStatus: 'SMTP_NOT_CONFIGURED', resetUrl };
     }
 
-    const frontendUrl =
-      this.configService.get<string>('FRONTEND_URL') ?? 'http://127.0.0.1:5173';
-    const resetUrl = `${frontendUrl}/reset-password?token=${encodeURIComponent(
-      request.id,
-    )}`;
     const transporter = nodemailer.createTransport({
       host: config.host,
       port: config.port,
@@ -144,8 +161,7 @@ export class PasswordResetsService {
     const host = this.getCleanEnv('SMTP_HOST') ?? this.getServiceHost(service);
     const port = Number(this.getCleanEnv('SMTP_PORT') ?? 587);
     const from = this.getCleanEnv('SMTP_FROM') ?? user;
-    const secure =
-      this.getCleanEnv('SMTP_SECURE') === 'true' || Number(port) === 465;
+    const secure = this.getCleanEnv('SMTP_SECURE') === 'true' || Number(port) === 465;
 
     if (!host || !user || !pass || !from) {
       return null;

@@ -1,6 +1,5 @@
 import { Body, Controller, Get, Param, Patch, Post, Put } from '@nestjs/common';
 import { PasswordResetsService } from './password-resets.service';
-import type { PasswordResetDto } from './password-resets.service';
 
 @Controller('password-resets')
 export class PasswordResetsController {
@@ -17,22 +16,27 @@ export class PasswordResetsController {
   }
 
   @Put()
-  replaceAll(@Body() requests: PasswordResetDto[]) {
+  replaceAll(@Body() requests: any[]) {
     return this.passwordResetsService.replaceAll(requests);
   }
 
   @Post()
-  create(@Body() request: PasswordResetDto) {
+  create(@Body() request: any) {
     return this.passwordResetsService.create(request);
   }
 
   @Post('request')
-  requestReset(@Body() request: PasswordResetDto) {
+  requestReset(@Body() request: any) {
     return this.passwordResetsService.requestReset(request);
   }
 
   @Patch(':id/send')
   markAsSent(@Param('id') id: string) {
     return this.passwordResetsService.markAsSent(id);
+  }
+
+  @Patch(':id/complete')
+  completeReset(@Param('id') id: string, @Body('newPassword') newPassword: string) {
+    return this.passwordResetsService.completeReset(id, newPassword);
   }
 }
