@@ -216,33 +216,50 @@ export class PasswordResetsService {
       await transporter.sendMail({
         from: config.from,
         to: request.registeredEmail,
-        subject: 'Reset Password ScanIn FTI UNTAR',
+        subject: 'Kode OTP Reset Password ScanIn FTI UNTAR',
         text: [
-          `Halo ${request.name},`,
+          `Yth. ${request.name},`,
           '',
-          'Admin sudah menyetujui permintaan reset password akun ScanIn kamu.',
-          `Kode OTP reset password kamu: ${otp}`,
+          'Admin Fakultas Teknologi Informasi UNTAR telah menyetujui permintaan reset password akun ScanIn Anda.',
+          `Kode OTP reset password Anda: ${otp}`,
           `Kode berlaku sampai: ${otpExpiresAt.toLocaleString('id-ID', {
             timeZone: 'Asia/Jakarta',
           })}`,
           '',
           `Buka halaman ini untuk membuat password baru: ${resetUrl}`,
           '',
-          'Jika kamu tidak meminta reset password, abaikan email ini.',
+          'Demi keamanan akun, jangan membagikan kode OTP ini kepada pihak mana pun.',
+          'Apabila Anda tidak mengajukan permintaan reset password, abaikan email ini atau hubungi Admin Fakultas Teknologi Informasi UNTAR.',
+          '',
+          'Hormat kami,',
+          'Admin Fakultas Teknologi Informasi UNTAR',
         ].join('\n'),
         html: `
-          <div style="font-family: Inter, Arial, sans-serif; color: #111827; line-height: 1.6;">
-            <p>Halo <strong>${request.name}</strong>,</p>
-            <p>Admin sudah menyetujui permintaan reset password akun ScanIn kamu.</p>
-            <div style="margin: 24px 0; padding: 20px; border-radius: 12px; background: #f3eef9; text-align: center;">
-              <p style="margin: 0 0 8px; color: #5c3386; font-weight: 700;">Kode OTP Reset Password</p>
-              <p style="margin: 0; color: #5c3386; font-size: 32px; font-weight: 900; letter-spacing: 8px;">${otp}</p>
-              <p style="margin: 8px 0 0; color: #6b7280; font-size: 13px;">Berlaku 10 menit.</p>
+          <div style="margin:0; padding:0; background:#f6f7fb; font-family: Inter, Arial, sans-serif; color:#111827; line-height:1.6;">
+            <div style="max-width:640px; margin:0 auto; padding:32px 20px;">
+              <div style="background:#5c3386; border-radius:14px 14px 0 0; padding:24px 28px; color:white;">
+                <p style="margin:0; font-size:13px; font-weight:800; letter-spacing:1.8px; text-transform:uppercase;">ScanIn FTI UNTAR</p>
+                <h1 style="margin:8px 0 0; font-size:24px; line-height:1.25;">Reset Password Akun</h1>
+              </div>
+              <div style="background:white; border:1px solid #e5e7eb; border-top:0; border-radius:0 0 14px 14px; padding:28px;">
+                <p>Yth. <strong>${request.name}</strong>,</p>
+                <p>Admin Fakultas Teknologi Informasi UNTAR telah menyetujui permintaan reset password akun ScanIn Anda.</p>
+                <div style="margin:24px 0; padding:22px; border-radius:12px; background:#f3eef9; text-align:center; border:1px solid #dfd2ee;">
+                  <p style="margin:0 0 8px; color:#5c3386; font-size:13px; font-weight:800; letter-spacing:1.2px; text-transform:uppercase;">Kode OTP Reset Password</p>
+                  <p style="margin:0; color:#5c3386; font-size:34px; font-weight:900; letter-spacing:8px;">${otp}</p>
+                  <p style="margin:8px 0 0; color:#6b7280; font-size:13px;">Kode berlaku selama 10 menit.</p>
+                </div>
+                <p>Silakan tekan tombol berikut untuk membuka halaman pembuatan password baru.</p>
+                <p style="margin:22px 0;"><a href="${resetUrl}" style="display:inline-block; padding:12px 18px; border-radius:8px; background:#5c3386; color:white; text-decoration:none; font-weight:800;">Buat Password Baru</a></p>
+                <p style="margin-bottom:8px;">Jika tombol tidak dapat dibuka, salin tautan berikut ke browser:</p>
+                <p style="word-break:break-all; color:#5c3386; font-size:13px;">${resetUrl}</p>
+                <div style="margin-top:24px; padding:14px 16px; border-radius:10px; background:#fff7ed; color:#7c2d12; font-size:13px;">
+                  Demi keamanan akun, jangan membagikan kode OTP ini kepada pihak mana pun.
+                </div>
+                <p style="margin-top:24px;">Apabila Anda tidak mengajukan permintaan reset password, abaikan email ini atau hubungi Admin Fakultas Teknologi Informasi UNTAR.</p>
+                <p style="margin-top:24px;">Hormat kami,<br /><strong>Admin Fakultas Teknologi Informasi UNTAR</strong></p>
+              </div>
             </div>
-            <p><a href="${resetUrl}" style="display:inline-block; padding: 12px 18px; border-radius: 8px; background: #5c3386; color: white; text-decoration: none; font-weight: 700;">Buat Password Baru</a></p>
-            <p>Jika tombol tidak bisa dibuka, salin link ini:</p>
-            <p style="word-break: break-all; color: #5c3386;">${resetUrl}</p>
-            <p>Jika kamu tidak meminta reset password, abaikan email ini.</p>
           </div>
         `,
       });
@@ -280,19 +297,48 @@ export class PasswordResetsService {
     };
     missing: string[];
   } {
-    const service = this.getCleanEnv('SMTP_SERVICE')?.toLowerCase();
-    const user = this.getCleanEnv('SMTP_USER');
-    const pass = this.getSecretEnv('SMTP_PASS');
-    const host = this.getCleanEnv('SMTP_HOST') ?? this.getServiceHost(service);
-    const port = Number(this.getCleanEnv('SMTP_PORT') ?? 587);
-    const from = this.getCleanEnv('SMTP_FROM') ?? user;
+    const service = this.getFirstCleanEnv([
+      'SMTP_SERVICE',
+      'MAIL_SERVICE',
+      'EMAIL_SERVICE',
+    ])?.toLowerCase();
+    const user = this.getFirstCleanEnv([
+      'SMTP_USER',
+      'SMTP_EMAIL',
+      'MAIL_USER',
+      'MAIL_USERNAME',
+      'EMAIL_USER',
+    ]);
+    const pass = this.getFirstSecretEnv([
+      'SMTP_PASS',
+      'SMTP_PASSWORD',
+      'MAIL_PASS',
+      'MAIL_PASSWORD',
+      'EMAIL_PASS',
+      'EMAIL_PASSWORD',
+    ]);
+    const host =
+      this.getFirstCleanEnv(['SMTP_HOST', 'MAIL_HOST', 'EMAIL_HOST']) ??
+      this.getServiceHost(service);
+    const port = Number(
+      this.getFirstCleanEnv(['SMTP_PORT', 'MAIL_PORT', 'EMAIL_PORT']) ?? 587,
+    );
+    const configuredFrom = this.getFirstCleanEnv([
+      'SMTP_FROM',
+      'MAIL_FROM',
+      'EMAIL_FROM',
+    ]);
+    const senderName =
+      this.getFirstCleanEnv(['SMTP_FROM_NAME', 'MAIL_FROM_NAME']) ??
+      'Admin Fakultas Teknologi Informasi UNTAR';
+    const from = configuredFrom ?? (user ? `${senderName} <${user}>` : undefined);
     const secure =
-      this.getCleanEnv('SMTP_SECURE') === 'true' || Number(port) === 465;
+      this.getFirstCleanEnv(['SMTP_SECURE', 'MAIL_SECURE', 'EMAIL_SECURE']) ===
+        'true' || Number(port) === 465;
     const missing = [
       !host ? 'SMTP_HOST' : null,
       !user ? 'SMTP_USER' : null,
       !pass ? 'SMTP_PASS' : null,
-      !from ? 'SMTP_FROM' : null,
     ].filter(Boolean) as string[];
 
     if (missing.length || !host || !user || !pass || !from) {
@@ -331,10 +377,30 @@ export class PasswordResetsService {
     return value;
   }
 
+  private getFirstCleanEnv(keys: string[]) {
+    for (const key of keys) {
+      const value = this.getCleanEnv(key);
+
+      if (value) return value;
+    }
+
+    return undefined;
+  }
+
   private getSecretEnv(key: string) {
     const value = this.getCleanEnv(key);
 
     return value?.replace(/\s/g, '');
+  }
+
+  private getFirstSecretEnv(keys: string[]) {
+    for (const key of keys) {
+      const value = this.getSecretEnv(key);
+
+      if (value) return value;
+    }
+
+    return undefined;
   }
 
   private getErrorMessage(error: unknown) {

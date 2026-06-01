@@ -15,7 +15,7 @@ const defaultPassword = 'Password123!'
 const seedUsers = [{
         pengguna: {
             id: '535240187',
-            username: 'naisya@stu.untar.ac.id',
+            username: 'naisya.535240187@stu.untar.ac.id',
             nama: "Naisya Yuen Ra'af",
             role: Role.MAHASISWA,
             isAktif: true,
@@ -28,14 +28,14 @@ const seedUsers = [{
     },
     {
         pengguna: {
-            id: '535240156',
-            username: 'ahmad@stu.untar.ac.id',
-            nama: 'Ahmad Rizki',
+            id: '535240075',
+            username: 'cathrine.535240075@stu.untar.ac.id',
+            nama: 'Cathrine Sandrina',
             role: Role.MAHASISWA,
             isAktif: true,
         },
         mahasiswa: {
-            nim: '535240156',
+            nim: '535240075',
             tipeKelas: TipeKelas.SORE,
             kelasRombel: 'TI S',
         },
