@@ -2,7 +2,7 @@ import { Controller, Get, Post, Put, Delete, Param, Body } from '@nestjs/common'
 import { AdminUsersService } from './admin-users.service';
 import { AdminUserDto } from './dto/admin-user.dto';
 
-@Controller('api/admin-users')
+@Controller('admin-users')
 export class AdminUsersController {
   constructor(private readonly adminUsersService: AdminUsersService) {}
 
