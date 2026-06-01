@@ -25,6 +25,11 @@ export class AdminUsersService {
     };
   }
 
+  async findAll() {
+    const users = await this.prisma.pengguna.findMany();
+    return users.map((user) => this.formatForFrontend(user));
+  }
+
   async createUser(data: AdminUserDto) {
     const newUser = await this.prisma.pengguna.create({
       data: {
@@ -32,7 +37,8 @@ export class AdminUsersService {
         nama: data.name,
         username: data.email,
         role: data.role,
-        isAktif: data.status
+        isAktif: data.status,
+        password: 'password123',
       },
     });
     return this.formatForFrontend(newUser);

@@ -69,19 +69,20 @@ export class PasswordResetsService {
     return updated;
   }
 
-  async completeReset(id: string, newPassword: string) {
+  async completeReset(id: string, password: string) {
     const request = await (this.prisma as any).passwordReset.findUnique({ where: { id } });
 
     if (!request) throw new NotFoundException('Password reset request not found');
 
     if (request.usedAt) throw new BadRequestException('Reset token already used');
 
-    // Find pengguna by registeredEmail (mapped to username in seed)
+    if (!password) throw new BadRequestException('Password baru tidak boleh kosong.');
+
     const pengguna = await this.prisma.pengguna.findUnique({ where: { username: request.registeredEmail } });
 
     if (!pengguna) throw new NotFoundException('Associated user not found');
 
-    const hashed = await bcrypt.hash(newPassword, 10);
+    const hashed = await bcrypt.hash(password, 10);
 
     await this.prisma.pengguna.update({ where: { id: pengguna.id }, data: { password: hashed } });
 

@@ -30,13 +30,13 @@ export class PasswordResetsController {
     return this.passwordResetsService.requestReset(request);
   }
 
-  @Patch(':id/send')
+  @Post(':id/send')
   markAsSent(@Param('id') id: string) {
     return this.passwordResetsService.markAsSent(id);
   }
 
-  @Patch(':id/complete')
-  completeReset(@Param('id') id: string, @Body('newPassword') newPassword: string) {
-    return this.passwordResetsService.completeReset(id, newPassword);
+  @Post(':id/complete')
+  completeReset(@Param('id') id: string, @Body('password') password: string) {
+    return this.passwordResetsService.completeReset(id, password);
   }
 }
