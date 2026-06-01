@@ -1,46 +1,23 @@
-import {
-  Body,
-  Controller,
-  Delete,
-  Get,
-  Param,
-  Patch,
-  Post,
-  Put,
-} from '@nestjs/common';
+import { Controller, Post, Put, Delete, Param, Body } from '@nestjs/common';
 import { AdminUsersService } from './admin-users.service';
-import type { AdminUserDto, AdminUserRole } from './admin-users.service';
+import { AdminUserDto } from './dto/admin-user.dto';
 
-@Controller('admin-users')
+@Controller('api/admin-users')
 export class AdminUsersController {
   constructor(private readonly adminUsersService: AdminUsersService) {}
 
-  @Get()
-  findAll() {
-    return this.adminUsersService.findAll();
-  }
-
-  @Put()
-  replaceAll() {
-    return this.adminUsersService.replaceAll();
-  }
-
   @Post()
-  create(@Body() user: AdminUserDto) {
-    return this.adminUsersService.create(user);
+  async createUser(@Body() payload: AdminUserDto) {
+    return this.adminUsersService.createUser(payload);
   }
 
-  @Patch(':role/:id')
-  update(
-    @Param('role') role: AdminUserRole,
-    @Param('id') id: string,
-    @Body() user: AdminUserDto,
-  ) {
-    return this.adminUsersService.update(role, id, user);
+  @Put(':id')
+  async updateUser(@Param('id') id: string, @Body() payload: AdminUserDto) {
+    return this.adminUsersService.updateUser(id, payload);
   }
 
-  @Delete(':role/:id')
-  remove(@Param('role') role: AdminUserRole, @Param('id') id: string) {
-    return this.adminUsersService.remove(role, id);
+  @Delete(':id')
+  async deleteUser(@Param('id') id: string) {
+    return this.adminUsersService.deleteUser(id);
   }
 }
