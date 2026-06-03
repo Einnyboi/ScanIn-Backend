@@ -65,4 +65,11 @@ export class SchedulesController {
   remove(@Param('id') id: string) {
     return this.schedulesService.remove(id);
   }
+
+  @Post('mock-test')
+  // Dibiarkan tanpa guard sementara agar mudah dipanggil untuk testing, 
+  // atau bisa ditambahkan @UseGuards dan @Roles jika ingin restriksi.
+  createMockTest() {
+    return this.schedulesService.createMockTestSchedule();
+  }
 }
