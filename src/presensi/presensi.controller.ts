@@ -9,6 +9,7 @@ import {
   Get,
   UploadedFile,
   UseInterceptors,
+  BadRequestException,
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { ApiTags, ApiOperation, ApiBearerAuth, ApiConsumes } from '@nestjs/swagger';
@@ -20,6 +21,15 @@ import { FileInterceptor } from '@nestjs/platform-express';
 import { Roles } from '../auth/roles.decorator';
 import { RolesGuard } from '../auth/roles.guard';
 import { Role } from '@prisma/client';
+import { diskStorage } from 'multer';
+import { existsSync, mkdirSync } from 'fs';
+import { extname, join } from 'path';
+import { randomUUID } from 'crypto';
+
+const uploadDir = join(process.cwd(), 'uploads');
+if (!existsSync(uploadDir)) {
+  mkdirSync(uploadDir, { recursive: true });
+}
 
 @ApiTags('Presensi')
 @ApiBearerAuth()
@@ -37,13 +47,27 @@ export class PresensiController {
   @ApiOperation({ summary: 'Upload bukti presensi (Mahasiswa)' })
   @UseGuards(AuthGuard('jwt'))
   @ApiConsumes('multipart/form-data')
-  @UseInterceptors(FileInterceptor('file'))
+  @UseInterceptors(
+    FileInterceptor('file', {
+      storage: diskStorage({
+        destination: uploadDir,
+        filename: (_req, file, callback) => {
+          callback(null, `${randomUUID()}${extname(file.originalname)}`);
+        },
+      }),
+      limits: { fileSize: 5 * 1024 * 1024 },
+    }),
+  )
   @Post('upload')
   uploadBukti(
     @Body() dto: UploadBuktiDto,
     @Request() req,
     @UploadedFile() file: Express.Multer.File,
   ) {
+    if (!file) {
+      throw new BadRequestException('File bukti wajib diunggah');
+    }
+
     return this.presensiService.uploadBukti(dto, req.user, file);
   }
 

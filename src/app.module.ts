@@ -24,7 +24,7 @@ import { EnrollmentsModule } from './enrollments/enrollments.module';
     ConfigModule.forRoot({ isGlobal: true }),
     ScheduleModule.forRoot(),
     ServeStaticModule.forRoot({
-      rootPath: join(__dirname, '..', 'uploads'),
+      rootPath: join(process.cwd(), 'uploads'),
       serveRoot: '/uploads',
     }),
     PrismaModule,
