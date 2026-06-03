@@ -24,6 +24,7 @@ export class AdminUsersService {
     const users = await this.prisma.pengguna.findMany({
       include: {
         mahasiswa: true,
+        pengajar: true,
       },
       where: { deletedAt: null },
       orderBy: { createdAt: 'desc' },
@@ -58,11 +59,22 @@ export class AdminUsersService {
           tipeKelas: user.tipeKelas ?? TipeKelas.PAGI,
         },
       });
+    } else if (created.role === Role.DOSEN || created.role === Role.ASDOS) {
+      await this.prisma.pengajar.upsert({
+        where: { penggunaId: created.id },
+        update: {
+          nip: user.id,
+        },
+        create: {
+          nip: user.id,
+          penggunaId: created.id,
+        },
+      });
     }
 
     const createdWithProfile = await this.prisma.pengguna.findUnique({
       where: { id: created.id },
-      include: { mahasiswa: true },
+      include: { mahasiswa: true, pengajar: true },
     });
 
     return this.toDto(createdWithProfile ?? created);
@@ -70,11 +82,25 @@ export class AdminUsersService {
 
   async update(
     role: AdminUserRole,
-    id: string,
+    identifier: string,
     user: AdminUserDto,
   ): Promise<AdminUserDto> {
+    let penggunaId = identifier;
+
+    if (role === 'Mahasiswa') {
+      const mhs = await this.prisma.mahasiswa.findFirst({
+        where: { nim: identifier },
+      });
+      if (mhs) penggunaId = mhs.penggunaId;
+    } else if (role === 'Pengajar') {
+      const pengajar = await this.prisma.pengajar.findFirst({
+        where: { nip: identifier },
+      });
+      if (pengajar) penggunaId = pengajar.penggunaId;
+    }
+
     const updated = await this.prisma.pengguna.update({
-      where: { id },
+      where: { id: penggunaId },
       data: {
         nama: user.name,
         username: user.email,
@@ -100,22 +126,47 @@ export class AdminUsersService {
           tipeKelas: user.tipeKelas ?? TipeKelas.PAGI,
         },
       });
+    } else if (updated.role === Role.DOSEN || updated.role === Role.ASDOS) {
+      await this.prisma.pengajar.upsert({
+        where: { penggunaId: updated.id },
+        update: {
+          nip: user.id,
+        },
+        create: {
+          nip: user.id,
+          penggunaId: updated.id,
+        },
+      });
     }
 
     const updatedWithProfile = await this.prisma.pengguna.findUnique({
       where: { id: updated.id },
-      include: { mahasiswa: true },
+      include: { mahasiswa: true, pengajar: true },
     });
 
     return this.toDto(updatedWithProfile ?? updated);
   }
 
-  async remove(role: AdminUserRole, id: string) {
+  async remove(role: AdminUserRole, identifier: string) {
+    let penggunaId = identifier;
+
+    if (role === 'Mahasiswa') {
+      const mhs = await this.prisma.mahasiswa.findFirst({
+        where: { nim: identifier },
+      });
+      if (mhs) penggunaId = mhs.penggunaId;
+    } else if (role === 'Pengajar') {
+      const pengajar = await this.prisma.pengajar.findFirst({
+        where: { nip: identifier },
+      });
+      if (pengajar) penggunaId = pengajar.penggunaId;
+    }
+
     await this.prisma.pengguna.update({
-      where: { id },
+      where: { id: penggunaId },
       data: { deletedAt: new Date() },
     });
-    return { deleted: true, id, role };
+    return { deleted: true, id: identifier, role };
   }
 
   async replaceAll(): Promise<AdminUserDto[]> {
@@ -124,8 +175,12 @@ export class AdminUsersService {
   }
 
   private toDto(p: any): AdminUserDto {
+    const isMahasiswa = p.role === Role.MAHASISWA;
+    const isPengajar = p.role === Role.DOSEN || p.role === Role.ASDOS;
+    const identifier = isMahasiswa ? p.mahasiswa?.nim : isPengajar ? p.pengajar?.nip : p.id;
+
     return {
-      id: p.id,
+      id: identifier ?? p.id,
       name: p.nama,
       email: p.username,
       role: this.mapRoleToFrontend(p.role),

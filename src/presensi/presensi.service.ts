@@ -15,9 +15,6 @@ import {
   MetodeInput,
 } from '@prisma/client';
 import { JwtService } from '@nestjs/jwt';
-import * as path from 'path';
-import * as fs from 'fs';
-import { Multer } from 'multer';
 import { EnrollmentsService } from '../enrollments/enrollments.service';
 
 const BATAS_HADIR_MENIT = 30;
@@ -170,6 +167,10 @@ export class PresensiService {
     }
 
     // 4. Simpan file path
+    if (!file?.filename) {
+      throw new BadRequestException('File bukti tidak valid');
+    }
+
     const filePath = `/uploads/${file.filename}`;
 
     // 5. Simpan presensi dengan status MENUNGGU_VALIDASI
