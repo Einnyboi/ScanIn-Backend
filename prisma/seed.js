@@ -279,7 +279,7 @@ async function main() {
     // Seed enrollment overrides (for repeat or special class placement)
     const enrollmentSeed = [
         { mahasiswaNim: '535240187', kelasIdKelas: 'KEL001', isOverride: false },
-        { mahasiswaNim: '535240156', kelasIdKelas: 'KEL012', isOverride: true },
+        { mahasiswaNim: '535240075', kelasIdKelas: 'KEL012', isOverride: true },
     ]
 
     for (const s of sesiSeed) {
@@ -344,7 +344,7 @@ async function main() {
         },
         {
             idPresensi: 'PRES002',
-            mahasiswaNim: '535240156',
+            mahasiswaNim: '535240075',
             sesiIdSesi: 'S001',
             statusKehadiran: 'TERLAMBAT',
             metodeInput: 'QR',
@@ -501,7 +501,7 @@ async function main() {
         { idPresensi: 'HIST002', mahasiswaNim: '535240075', sesiId: 'S003', statusKehadiran: 'HADIR', metodeInput: 'QR', waktuAbsen: new Date('2026-05-18T10:28:00.000Z') },
         { idPresensi: 'HIST003', mahasiswaNim: '535240187', sesiId: 'S004', statusKehadiran: 'TERLAMBAT', metodeInput: 'QR', waktuAbsen: new Date('2026-05-17T13:17:00.000Z') },
         { idPresensi: 'HIST004', mahasiswaNim: '535240075', sesiId: 'S002', statusKehadiran: 'HADIR', metodeInput: 'QR', waktuAbsen: new Date('2026-05-16T08:02:00.000Z') },
-        { idPresensi: 'HIST005', mahasiswaNim: '535240156', sesiId: 'S004', statusKehadiran: 'TERLAMBAT', metodeInput: 'MANUAL', waktuAbsen: new Date('2026-05-17T13:22:00.000Z') },
+        { idPresensi: 'HIST005', mahasiswaNim: '535240075', sesiId: 'S004', statusKehadiran: 'TERLAMBAT', metodeInput: 'MANUAL', waktuAbsen: new Date('2026-05-17T13:22:00.000Z') },
     ]
 
     for (const p of mockAttendance) {
