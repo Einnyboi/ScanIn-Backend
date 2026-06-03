@@ -167,12 +167,26 @@ export class SchedulesService {
     return this.findAll();
   }
 
+  async createMockTestSchedule() {
+    const today = new Date();
+    const currentDay = this.getDayName(today);
+    
+    const mockSchedule: ScheduleDto = {
+      title: 'Testing QR Malam (Dev)',
+      className: 'TEST-NIGHT-01',
+      day: currentDay,
+      time: '00:00 - 23:59',
+      room: 'Lab Virtual',
+      lecturer: 'Dosen Tester',
+    };
+
+    return this.create(mockSchedule);
+  }
+
   private formatTime(date: Date): string {
-    return date.toLocaleTimeString('id-ID', {
-      hour: '2-digit',
-      minute: '2-digit',
-      hour12: false,
-    });
+    const hh = String(date.getHours()).padStart(2, '0');
+    const mm = String(date.getMinutes()).padStart(2, '0');
+    return `${hh}:${mm}`;
   }
 
   private async findOrCreateMataKuliah(title: string) {
