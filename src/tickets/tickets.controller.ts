@@ -11,7 +11,10 @@ import {
 import { TicketsService } from './tickets.service';
 
 type CorrectionTicketDto = {
+  id?: string;
+  studentName?: string;
   studentId: string;
+  courseTitle?: string;
   reason: string;
   date: string;
   status?: string;
