@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unsafe-return */
 import {
   BadRequestException,
   Injectable,
@@ -30,6 +29,7 @@ export class SchedulesService {
       include: {
         kelas: { include: { mataKuliah: true } },
         ruangan: true,
+        pengajar: { include: { pengguna: true } },
         sesiPresensi: {
           where: { statusSesi: 'AKTIF' },
           take: 1,
@@ -46,7 +46,7 @@ export class SchedulesService {
         className: j.kelas.namaKelas,
         time: `${this.formatTime(j.jamMulai)} - ${this.formatTime(j.jamSelesai)}`,
         room: j.ruangan.namaRuangan,
-        lecturer: '',
+        lecturer: j.pengajar?.pengguna?.nama || '',
         students: await this.enrollmentsService.countMahasiswaForKelas(
           j.kelas.id,
         ),
@@ -72,6 +72,10 @@ export class SchedulesService {
       schedule.day,
     );
 
+    const pengajarId = schedule.lecturer
+      ? (await this.findPengajarByName(schedule.lecturer))?.id
+      : null;
+
     const created = await this.prisma.jadwal.create({
       data: {
         idJadwal: this.createCode('JAD'),
@@ -80,15 +84,17 @@ export class SchedulesService {
         jamSelesai,
         kelasId: kelas.id,
         ruanganId: ruangan.id,
+        ...(pengajarId ? { pengajarId } : {}),
       },
       include: {
         kelas: { include: { mataKuliah: true } },
         ruangan: true,
+        pengajar: { include: { pengguna: true } },
         sesiPresensi: { where: { statusSesi: 'AKTIF' }, take: 1 },
       },
     });
 
-    return this.toDto(created, 0, schedule.lecturer);
+    return this.toDto(created as any, 0, schedule.lecturer);
   }
 
   async update(id: string, schedule: ScheduleDto) {
@@ -125,6 +131,11 @@ export class SchedulesService {
       });
     }
 
+    const pengajarId =
+      schedule.lecturer !== undefined
+        ? (await this.findPengajarByName(schedule.lecturer))?.id || null
+        : undefined;
+
     const updated = await this.prisma.jadwal.update({
       where: { id },
       data: {
@@ -136,15 +147,21 @@ export class SchedulesService {
             }
           : {}),
         ...(ruangan ? { ruanganId: ruangan.id } : {}),
+        ...(pengajarId !== undefined ? { pengajarId } : {}),
       },
       include: {
         kelas: { include: { mataKuliah: true } },
         ruangan: true,
+        pengajar: { include: { pengguna: true } },
         sesiPresensi: { where: { statusSesi: 'AKTIF' }, take: 1 },
       },
     });
 
-    return this.toDto(updated, await this.enrollmentsService.countMahasiswaForKelas(updated.kelas.id), schedule.lecturer);
+    return this.toDto(
+      updated as any,
+      await this.enrollmentsService.countMahasiswaForKelas(updated.kelas.id),
+      updated.pengajar?.pengguna?.nama || schedule.lecturer,
+    );
   }
 
   async remove(id: string) {
@@ -170,7 +187,7 @@ export class SchedulesService {
   async createMockTestSchedule() {
     const today = new Date();
     const currentDay = this.getDayName(today);
-    
+
     const mockSchedule: ScheduleDto = {
       title: 'Testing QR Malam (Dev)',
       className: 'TEST-NIGHT-01',
@@ -187,6 +204,16 @@ export class SchedulesService {
     const hh = String(date.getHours()).padStart(2, '0');
     const mm = String(date.getMinutes()).padStart(2, '0');
     return `${hh}:${mm}`;
+  }
+
+  private async findPengajarByName(name: string) {
+    const normalized = name.trim();
+    if (!normalized) return null;
+    return this.prisma.pengajar.findFirst({
+      where: {
+        pengguna: { nama: { equals: normalized, mode: 'insensitive' } },
+      },
+    });
   }
 
   private async findOrCreateMataKuliah(title: string) {
@@ -273,15 +300,9 @@ export class SchedulesService {
   }
 
   private getDayName(date: Date) {
-    return [
-      'Minggu',
-      'Senin',
-      'Selasa',
-      'Rabu',
-      'Kamis',
-      'Jumat',
-      'Sabtu',
-    ][date.getDay()];
+    return ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'][
+      date.getDay()
+    ];
   }
 
   private validateSchedule(schedule: ScheduleDto) {
@@ -298,8 +319,13 @@ export class SchedulesService {
 
   private async toDto(
     jadwal: Awaited<ReturnType<PrismaService['jadwal']['findMany']>>[number] & {
-      kelas: { id: string; namaKelas: string; mataKuliah: { namaMatkul: string } };
+      kelas: {
+        id: string;
+        namaKelas: string;
+        mataKuliah: { namaMatkul: string };
+      };
       ruangan: { namaRuangan: string };
+      pengajar?: { pengguna: { nama: string } } | null;
       sesiPresensi: Array<{ id: string }>;
     },
     students?: number,
@@ -316,7 +342,7 @@ export class SchedulesService {
       className: jadwal.kelas.namaKelas,
       time: `${this.formatTime(jadwal.jamMulai)} - ${this.formatTime(jadwal.jamSelesai)}`,
       room: jadwal.ruangan.namaRuangan,
-      lecturer,
+      lecturer: lecturer || jadwal.pengajar?.pengguna?.nama || '',
       students: studentCount,
       status: jadwal.sesiPresensi.length > 0 ? 'active' : 'upcoming',
     };

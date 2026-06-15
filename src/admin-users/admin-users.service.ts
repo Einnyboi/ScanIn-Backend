@@ -49,11 +49,13 @@ export class AdminUsersService {
         where: { penggunaId: created.id },
         update: {
           nim: user.id,
+          angkatan: user.id.length >= 5 ? user.id.substring(3, 5) : '00',
           kelasRombel: user.kelasRombel ?? null,
           tipeKelas: user.tipeKelas ?? TipeKelas.PAGI,
         },
         create: {
           nim: user.id,
+          angkatan: user.id.length >= 5 ? user.id.substring(3, 5) : '00',
           penggunaId: created.id,
           kelasRombel: user.kelasRombel ?? null,
           tipeKelas: user.tipeKelas ?? TipeKelas.PAGI,
@@ -114,6 +116,7 @@ export class AdminUsersService {
         where: { penggunaId: updated.id },
         update: {
           nim: user.id,
+          angkatan: user.id.length >= 5 ? user.id.substring(3, 5) : '00',
           ...(user.kelasRombel !== undefined
             ? { kelasRombel: user.kelasRombel }
             : {}),
@@ -121,6 +124,7 @@ export class AdminUsersService {
         },
         create: {
           nim: user.id,
+          angkatan: user.id.length >= 5 ? user.id.substring(3, 5) : '00',
           penggunaId: updated.id,
           kelasRombel: user.kelasRombel ?? null,
           tipeKelas: user.tipeKelas ?? TipeKelas.PAGI,
@@ -177,7 +181,11 @@ export class AdminUsersService {
   private toDto(p: any): AdminUserDto {
     const isMahasiswa = p.role === Role.MAHASISWA;
     const isPengajar = p.role === Role.DOSEN || p.role === Role.ASDOS;
-    const identifier = isMahasiswa ? p.mahasiswa?.nim : isPengajar ? p.pengajar?.nip : p.id;
+    const identifier = isMahasiswa
+      ? p.mahasiswa?.nim
+      : isPengajar
+        ? p.pengajar?.nip
+        : p.id;
 
     return {
       id: identifier ?? p.id,

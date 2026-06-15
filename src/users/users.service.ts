@@ -14,13 +14,41 @@ export class UsersService {
     if (existing) throw new ConflictException('Username sudah terdaftar');
 
     const hashed = await bcrypt.hash(dto.password, 10);
-    return this.prisma.pengguna.create({
-      data: {
-        username: dto.username,
-        password: hashed,
-        nama: dto.nama,
-        role: dto.role,
-      },
+
+    return this.prisma.$transaction(async (tx) => {
+      const pengguna = await tx.pengguna.create({
+        data: {
+          username: dto.username,
+          password: hashed,
+          nama: dto.nama,
+          role: dto.role,
+        },
+      });
+
+      if (dto.role === 'MAHASISWA') {
+        const emailPrefix = dto.username.split('@')[0] || '';
+        const nim = emailPrefix.replace(/[^0-9]/g, '');
+        const angkatan = nim.length >= 5 ? nim.substring(3, 5) : '00';
+        await tx.mahasiswa.create({
+          data: {
+            nim: nim || `MHS${Date.now()}`,
+            angkatan,
+            penggunaId: pengguna.id,
+            tipeKelas: 'PAGI', // Default, bisa diubah nanti
+          },
+        });
+      } else if (dto.role === 'DOSEN' || dto.role === 'ASDOS') {
+        const emailPrefix = dto.username.split('@')[0] || '';
+        const nip = emailPrefix.replace(/[^0-9]/g, '');
+        await tx.pengajar.create({
+          data: {
+            nip: nip || `NIP${Date.now()}`,
+            penggunaId: pengguna.id,
+          },
+        });
+      }
+
+      return pengguna;
     });
   }
 

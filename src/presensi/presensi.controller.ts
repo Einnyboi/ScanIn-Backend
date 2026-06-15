@@ -12,7 +12,12 @@ import {
   BadRequestException,
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
-import { ApiTags, ApiOperation, ApiBearerAuth, ApiConsumes } from '@nestjs/swagger';
+import {
+  ApiTags,
+  ApiOperation,
+  ApiBearerAuth,
+  ApiConsumes,
+} from '@nestjs/swagger';
 import { PresensiService } from './presensi.service';
 import { ScanQrDto } from './dto/scan-qr.dto';
 import { UploadBuktiDto } from './dto/upload-bukti.dto';
@@ -76,7 +81,12 @@ export class PresensiController {
   @Roles(Role.DOSEN, Role.ASDOS)
   @Patch('validasi/:id')
   validasiBukti(@Param('id') id: string, @Body() body: any, @Request() req) {
-    return this.presensiService.validasiBukti(id, body.aksi, req.user, body.alasan);
+    return this.presensiService.validasiBukti(
+      id,
+      body.aksi,
+      req.user,
+      body.alasan,
+    );
   }
 
   @ApiOperation({ summary: 'Input presensi manual (Pengajar)' })

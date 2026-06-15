@@ -16,7 +16,7 @@ export class SupportComplaintsService {
   private complaints: SupportComplaintDto[] = [
     {
       id: 'SC001',
-      name: 'Naisya Yuen Ra\'af',
+      name: "Naisya Yuen Ra'af",
       identity: '535240187',
       role: 'mahasiswa',
       category: 'Absensi',

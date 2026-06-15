@@ -6,7 +6,12 @@ import {
 } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { BukaSesiDto } from './dto/buka-sesi.dto';
-import { Pengguna, StatusSesi, StatusKehadiran, MetodeInput } from '@prisma/client';
+import {
+  Pengguna,
+  StatusSesi,
+  StatusKehadiran,
+  MetodeInput,
+} from '@prisma/client';
 import { randomUUID } from 'crypto';
 import { SchedulerRegistry } from '@nestjs/schedule';
 import { EnrollmentsService } from '../enrollments/enrollments.service';
@@ -24,7 +29,8 @@ export class SesiService {
     const pengajar = await this.prisma.pengajar.findUnique({
       where: { penggunaId: pengguna.id },
     });
-    if (!pengajar) throw new ForbiddenException('Hanya pengajar yang bisa membuka sesi')
+    if (!pengajar)
+      throw new ForbiddenException('Hanya pengajar yang bisa membuka sesi');
 
     // 2. Cari jadwal
     const jadwal = await this.prisma.jadwal.findUnique({
@@ -37,7 +43,10 @@ export class SesiService {
     const sesiAktif = await this.prisma.sesiPresensi.findFirst({
       where: { jadwalId: dto.jadwalId, statusSesi: StatusSesi.AKTIF },
     });
-    if (sesiAktif) throw new BadRequestException('Sesi presensi untuk jadwal ini sudah aktif');
+    if (sesiAktif)
+      throw new BadRequestException(
+        'Sesi presensi untuk jadwal ini sudah aktif',
+      );
 
     // 4. Validasi waktu — boleh buka 30 menit sebelum jam mulai
     const sekarang = new Date();
