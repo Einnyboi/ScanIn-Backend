@@ -26,7 +26,7 @@ export class TicketsService {
 
   async create(ticket: any) {
     const pengguna = await this.prisma.pengguna.findUnique({
-      where: { username: ticket.studentId }
+      where: { username: ticket.studentId },
     });
 
     if (!pengguna) {
