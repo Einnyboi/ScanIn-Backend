@@ -27,14 +27,14 @@ export class SesiController {
   @Roles(Role.DOSEN, Role.ASDOS)
   @Post()
   bukaSesi(@Body() dto: BukaSesiDto, @Request() req) {
-    return this.sesiService.bukaSesi(dto, req.user)
+    return this.sesiService.bukaSesi(dto, req.user);
   }
 
   @ApiOperation({ summary: 'Tutup sesi presensi manual (Pengajar)' })
   @Roles(Role.DOSEN, Role.ASDOS)
   @Patch(':id/tutup')
   tutupSesi(@Param('id') id: string, @Request() req) {
-    return this.sesiService.tutupSesi(id, req.user)
+    return this.sesiService.tutupSesi(id, req.user);
   }
 
   @ApiOperation({ summary: 'Lihat detail sesi dan daftar kehadiran' })

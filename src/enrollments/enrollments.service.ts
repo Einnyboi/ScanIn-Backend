@@ -1,7 +1,4 @@
-import {
-  Injectable,
-  NotFoundException,
-} from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateEnrollmentDto } from './dto/create-enrollment.dto';
@@ -166,7 +163,8 @@ export class EnrollmentsService {
     mahasiswaIdentifier: string,
     kelasIdentifier: string,
   ): Promise<boolean> {
-    const mahasiswa = await this.resolveMahasiswaByIdentifier(mahasiswaIdentifier);
+    const mahasiswa =
+      await this.resolveMahasiswaByIdentifier(mahasiswaIdentifier);
     const kelas = await this.resolveKelasByIdentifier(kelasIdentifier);
 
     if (!mahasiswa || !kelas) {
@@ -235,12 +233,14 @@ export class EnrollmentsService {
     return this.getMahasiswaIdsForKelas(kelasIdentifier);
   }
 
-  private toDto(item: Prisma.MahasiswaKelasGetPayload<{
-    include: {
-      mahasiswa: { include: { pengguna: true } };
-      kelas: { include: { mataKuliah: true } };
-    };
-  }>): EnrollmentDto {
+  private toDto(
+    item: Prisma.MahasiswaKelasGetPayload<{
+      include: {
+        mahasiswa: { include: { pengguna: true } };
+        kelas: { include: { mataKuliah: true } };
+      };
+    }>,
+  ): EnrollmentDto {
     return {
       id: item.id,
       mahasiswaId: item.mahasiswaId,

@@ -26,6 +26,7 @@ model Pengguna {
 model Mahasiswa {
   id           String         @id @default(cuid())
   nim          String         @unique
+  angkatan     String
   penggunaId   String         @unique
   tipeKelas    TipeKelas
   kelasRombel  String?
@@ -42,6 +43,7 @@ model Pengajar {
   penggunaId   String         @unique
   pengguna     Pengguna       @relation(fields: [penggunaId], references: [id])
   sesiPresensi SesiPresensi[]
+  jadwal       Jadwal[]
 
   @@map("pengajar")
 }
@@ -101,8 +103,10 @@ model Jadwal {
   jamSelesai   DateTime
   kelasId      String
   ruanganId    String
+  pengajarId   String?
   kelas        Kelas          @relation(fields: [kelasId], references: [id])
   ruangan      Ruangan        @relation(fields: [ruanganId], references: [id])
+  pengajar     Pengajar?      @relation(fields: [pengajarId], references: [id])
   sesiPresensi SesiPresensi[]
 
   @@map("jadwal")

@@ -1,29 +1,27 @@
-import { Body, Controller, Get, Post, Put, UseGuards } from '@nestjs/common';
-import { AuthGuard } from '@nestjs/passport';
-import { Role } from '@prisma/client';
-import { Roles } from '../auth/roles.decorator';
-import { RolesGuard } from '../auth/roles.guard';
+import { Controller, Get, Query, UseGuards } from '@nestjs/common';
+import { ApiTags, ApiOperation, ApiQuery } from '@nestjs/swagger';
 import { ReportsService } from './reports.service';
-import type { GeneratedReportDto } from './reports.service';
+import { AuthGuard } from '@nestjs/passport';
 
-@UseGuards(AuthGuard('jwt'), RolesGuard)
-@Roles(Role.ADMIN)
+@ApiTags('Reports')
 @Controller('reports')
 export class ReportsController {
   constructor(private readonly reportsService: ReportsService) {}
 
   @Get()
-  findAll() {
-    return this.reportsService.findAll();
-  }
-
-  @Put()
-  replaceAll(@Body() reports: GeneratedReportDto[]) {
-    return this.reportsService.replaceAll(reports);
-  }
-
-  @Post()
-  create(@Body() report: GeneratedReportDto) {
-    return this.reportsService.create(report);
+  @ApiOperation({ summary: 'Generate laporan kehadiran' })
+  @ApiQuery({ name: 'mataKuliahId', required: false, type: String })
+  @ApiQuery({ name: 'kelasId', required: false, type: String })
+  @ApiQuery({ name: 'pengajarId', required: false, type: String })
+  generateReport(
+    @Query('mataKuliahId') mataKuliahId?: string,
+    @Query('kelasId') kelasId?: string,
+    @Query('pengajarId') pengajarId?: string,
+  ) {
+    return this.reportsService.generateReport(
+      mataKuliahId,
+      kelasId,
+      pengajarId,
+    );
   }
 }

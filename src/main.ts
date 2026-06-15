@@ -35,6 +35,8 @@ async function bootstrap() {
 
   app.enableCors();
   console.log(`Backend running on port ${process.env.PORT || 3000}`);
-  console.log(`Swagger docs: http://localhost:${process.env.PORT || 3000}/api/docs`);
+  console.log(
+    `Swagger docs: http://localhost:${process.env.PORT || 3000}/api/docs`,
+  );
 }
 bootstrap();

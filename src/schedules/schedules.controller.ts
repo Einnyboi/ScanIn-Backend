@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unsafe-return */
 import {
   Body,
   Controller,
@@ -67,7 +66,7 @@ export class SchedulesController {
   }
 
   @Post('mock-test')
-  // Dibiarkan tanpa guard sementara agar mudah dipanggil untuk testing, 
+  // Dibiarkan tanpa guard sementara agar mudah dipanggil untuk testing,
   // atau bisa ditambahkan @UseGuards dan @Roles jika ingin restriksi.
   createMockTest() {
     return this.schedulesService.createMockTestSchedule();

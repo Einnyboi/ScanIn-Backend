@@ -107,7 +107,7 @@ export class PasswordResetsService {
             emailError:
               delivery.emailStatus === 'SENT'
                 ? undefined
-                : delivery.emailError ?? request.emailError,
+                : (delivery.emailError ?? request.emailError),
           }
         : request,
     );
@@ -168,7 +168,9 @@ export class PasswordResetsService {
     const config = smtp.config;
 
     return {
-      status: config ? ('READY' as SmtpStatus) : ('NOT_CONFIGURED' as SmtpStatus),
+      status: config
+        ? ('READY' as SmtpStatus)
+        : ('NOT_CONFIGURED' as SmtpStatus),
       host: config?.host ?? null,
       port: config?.port ?? null,
       from: config?.from ?? null,
@@ -331,7 +333,8 @@ export class PasswordResetsService {
     const senderName =
       this.getFirstCleanEnv(['SMTP_FROM_NAME', 'MAIL_FROM_NAME']) ??
       'Admin Fakultas Teknologi Informasi UNTAR';
-    const from = configuredFrom ?? (user ? `${senderName} <${user}>` : undefined);
+    const from =
+      configuredFrom ?? (user ? `${senderName} <${user}>` : undefined);
     const secure =
       this.getFirstCleanEnv(['SMTP_SECURE', 'MAIL_SECURE', 'EMAIL_SECURE']) ===
         'true' || Number(port) === 465;
