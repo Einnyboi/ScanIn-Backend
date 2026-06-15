@@ -25,11 +25,19 @@ export class TicketsService {
   }
 
   async create(ticket: any) {
+    const pengguna = await this.prisma.pengguna.findUnique({
+      where: { username: ticket.studentId },
+    });
+
+    if (!pengguna) {
+      throw new Error('Pengguna tidak ditemukan');
+    }
+
     const created = await this.prisma.permohonan.create({
       data: {
-        penggunaId: ticket.studentId,
+        penggunaId: pengguna.id,
         jenisPermohonan: JenisPermohonan.KELUHAN_ABSENSI,
-        deskripsiMasalah: ticket.reason,
+        deskripsiMasalah: `[${ticket.courseTitle || 'Umum'}] ${ticket.reason}`,
         tanggalKelas: new Date(ticket.date),
         status: StatusPermohonan.MENUNGGU_DIPROSES,
       },
@@ -66,13 +74,24 @@ export class TicketsService {
   }
 
   private toTicketDto(p: any) {
+    let courseTitle = '';
+    let reason = p.deskripsiMasalah ?? '';
+
+    if (reason.startsWith('[')) {
+      const match = reason.match(/^\[(.*?)\]\s*(.*)$/);
+      if (match) {
+        courseTitle = match[1];
+        reason = match[2];
+      }
+    }
+
     return {
       id: p.id,
-      studentId: p.penggunaId,
+      studentId: p.pengguna?.username ?? p.penggunaId,
       studentName: p.pengguna?.nama ?? '',
-      courseTitle: p.deskripsiMasalah ?? '',
+      courseTitle,
       date: p.tanggalKelas?.toISOString().split('T')[0] ?? '',
-      reason: p.deskripsiMasalah ?? '',
+      reason,
       status: this.mapStatusToFrontend(p.status),
       submittedAt: p.createdAt?.toISOString(),
     };
