@@ -24,8 +24,35 @@ export class SchedulesService {
     private enrollmentsService: EnrollmentsService,
   ) {}
 
-  async findAll() {
+  async findAll(user?: any) {
+    let whereCondition: any = {};
+
+    if (user) {
+      if (user.role === 'MAHASISWA') {
+        const mahasiswa = await this.prisma.mahasiswa.findUnique({
+          where: { penggunaId: user.id },
+        });
+        if (mahasiswa) {
+          whereCondition = {
+            kelas: {
+              mahasiswaAssignments: {
+                some: { mahasiswaId: mahasiswa.id },
+              },
+            },
+          };
+        }
+      } else if (user.role === 'DOSEN' || user.role === 'ASDOS') {
+        const pengajar = await this.prisma.pengajar.findUnique({
+          where: { penggunaId: user.id },
+        });
+        if (pengajar) {
+          whereCondition = { pengajarId: pengajar.id };
+        }
+      }
+    }
+
     const schedules = await this.prisma.jadwal.findMany({
+      where: whereCondition,
       include: {
         kelas: {
           include: { mataKuliah: true },
@@ -113,6 +140,13 @@ export class SchedulesService {
         namaKelas: data.namaKelas,
         mataKuliahId: course.id,
       },
+    });
+  }
+
+  async updateClass(id: string, namaKelas: string) {
+    return this.prisma.kelas.update({
+      where: { id },
+      data: { namaKelas },
     });
   }
 
