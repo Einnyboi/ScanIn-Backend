@@ -28,6 +28,11 @@ export class EnrollmentsController {
     return this.enrollmentsService.searchStudents(q || '');
   }
 
+  @Get('available-rombels')
+  getAvailableRombels(@Query('angkatan') angkatan: string) {
+    return this.enrollmentsService.getAvailableRombels(angkatan);
+  }
+
   @Get('mahasiswa/:identifier')
   findByMahasiswa(@Param('identifier') identifier: string) {
     return this.enrollmentsService.findByMahasiswa(identifier);
@@ -53,8 +58,9 @@ export class EnrollmentsController {
     @Param('id') kelasId: string,
     @Body('angkatan') angkatan: string,
     @Body('tipeKelas') tipeKelas?: string,
+    @Body('kelasRombel') kelasRombel?: string,
   ) {
-    return this.enrollmentsService.enrollBulk(kelasId, angkatan, tipeKelas);
+    return this.enrollmentsService.enrollBulk(kelasId, angkatan, tipeKelas, kelasRombel);
   }
 
   @Post('classes/:id/enroll/manual')

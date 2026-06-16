@@ -137,7 +137,7 @@ export class EnrollmentsService {
     return { deleted: true, id };
   }
 
-  async enrollBulk(kelasId: string, angkatan: string, tipeKelas?: string) {
+  async enrollBulk(kelasId: string, angkatan: string, tipeKelas?: string, kelasRombel?: string) {
     const kelas = await this.resolveKelasByIdentifier(kelasId);
     if (!kelas) throw new NotFoundException('Kelas tidak ditemukan');
 
@@ -145,6 +145,7 @@ export class EnrollmentsService {
       where: {
         angkatan,
         ...(tipeKelas ? { tipeKelas: tipeKelas as any } : {}),
+        ...(kelasRombel ? { kelasRombel } : {}),
       },
     });
 
@@ -236,6 +237,20 @@ export class EnrollmentsService {
       angkatan: s.angkatan,
       tipeKelas: s.tipeKelas,
     }));
+  }
+
+  async getAvailableRombels(angkatan?: string) {
+    const where = angkatan ? { angkatan } : {};
+    const rombels = await this.prisma.mahasiswa.findMany({
+      where: {
+        ...where,
+        kelasRombel: { not: null },
+      },
+      distinct: ['kelasRombel'],
+      select: { kelasRombel: true },
+      orderBy: { kelasRombel: 'asc' },
+    });
+    return rombels.map((r) => r.kelasRombel).filter(Boolean);
   }
 
   async resolveMahasiswaByIdentifier(identifier: string) {

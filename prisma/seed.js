@@ -99,6 +99,150 @@ const seedUsers = [{
             isAktif: true,
         },
     },
+    {
+        pengguna: { id: '535240064', username: 'vincen.535240064@stu.untar.ac.id', nama: 'VINCEN OKTA RAMADHAN', role: Role.MAHASISWA, isAktif: true },
+        mahasiswa: { nim: '535240064', angkatan: '2024', tipeKelas: TipeKelas.PAGI, kelasRombel: 'TI C' }
+    },
+    {
+        pengguna: { id: '535240066', username: 'gian.535240066@stu.untar.ac.id', nama: 'GIAN KENAR JAVIER', role: Role.MAHASISWA, isAktif: true },
+        mahasiswa: { nim: '535240066', angkatan: '2024', tipeKelas: TipeKelas.PAGI, kelasRombel: 'TI C' }
+    },
+    {
+        pengguna: { id: '535240067', username: 'darrel.535240067@stu.untar.ac.id', nama: 'DARREL YOSEPH', role: Role.MAHASISWA, isAktif: true },
+        mahasiswa: { nim: '535240067', angkatan: '2024', tipeKelas: TipeKelas.PAGI, kelasRombel: 'TI C' }
+    },
+    {
+        pengguna: { id: '535240068', username: 'charless.535240068@stu.untar.ac.id', nama: 'CHARLESS', role: Role.MAHASISWA, isAktif: true },
+        mahasiswa: { nim: '535240068', angkatan: '2024', tipeKelas: TipeKelas.PAGI, kelasRombel: 'TI C' }
+    },
+    {
+        pengguna: { id: '535240069', username: 'martin.535240069@stu.untar.ac.id', nama: 'MARTIN CAHYADI', role: Role.MAHASISWA, isAktif: true },
+        mahasiswa: { nim: '535240069', angkatan: '2024', tipeKelas: TipeKelas.PAGI, kelasRombel: 'TI C' }
+    },
+    {
+        pengguna: { id: '535240070', username: 'christy.535240070@stu.untar.ac.id', nama: 'CHRISTY JONES', role: Role.MAHASISWA, isAktif: true },
+        mahasiswa: { nim: '535240070', angkatan: '2024', tipeKelas: TipeKelas.PAGI, kelasRombel: 'TI C' }
+    },
+    {
+        pengguna: { id: '535240071', username: 'vanesa.535240071@stu.untar.ac.id', nama: 'VANESA YOLANDA', role: Role.MAHASISWA, isAktif: true },
+        mahasiswa: { nim: '535240071', angkatan: '2024', tipeKelas: TipeKelas.PAGI, kelasRombel: 'TI C' }
+    },
+    {
+        pengguna: { id: '535240073', username: 'advendra.535240073@stu.untar.ac.id', nama: 'ADVENDRA DESWANTA', role: Role.MAHASISWA, isAktif: true },
+        mahasiswa: { nim: '535240073', angkatan: '2024', tipeKelas: TipeKelas.PAGI, kelasRombel: 'TI C' }
+    },
+    {
+        pengguna: { id: '535240076', username: 'cornelius.535240076@stu.untar.ac.id', nama: 'CORNELIUS CLARENCE TANUSULISTYO', role: Role.MAHASISWA, isAktif: true },
+        mahasiswa: { nim: '535240076', angkatan: '2024', tipeKelas: TipeKelas.PAGI, kelasRombel: 'TI C' }
+    },
+    {
+        pengguna: { id: '535240077', username: 'fabio.535240077@stu.untar.ac.id', nama: 'FABIO FRANCISCO', role: Role.MAHASISWA, isAktif: true },
+        mahasiswa: { nim: '535240077', angkatan: '2024', tipeKelas: TipeKelas.PAGI, kelasRombel: 'TI C' }
+    },
+    {
+        pengguna: { id: '535240078', username: 'naomi.535240078@stu.untar.ac.id', nama: 'NAOMI WILLIAM SUGIANTARA', role: Role.MAHASISWA, isAktif: true },
+        mahasiswa: { nim: '535240078', angkatan: '2024', tipeKelas: TipeKelas.PAGI, kelasRombel: 'TI C' }
+    },
+    {
+        pengguna: { id: '535240079', username: 'joe.535240079@stu.untar.ac.id', nama: 'JOE NICKSON LIE', role: Role.MAHASISWA, isAktif: true },
+        mahasiswa: { nim: '535240079', angkatan: '2024', tipeKelas: TipeKelas.PAGI, kelasRombel: 'TI C' }
+    },
+    {
+        pengguna: { id: '535240080', username: 'michael.535240080@stu.untar.ac.id', nama: 'MICHAEL ANDRE ANTORO', role: Role.MAHASISWA, isAktif: true },
+        mahasiswa: { nim: '535240080', angkatan: '2024', tipeKelas: TipeKelas.PAGI, kelasRombel: 'TI C' }
+    },
+    {
+        pengguna: { id: '535240081', username: 'castillo.535240081@stu.untar.ac.id', nama: 'CASTILLO D`ARTAGNAN ALDRIN', role: Role.MAHASISWA, isAktif: true },
+        mahasiswa: { nim: '535240081', angkatan: '2024', tipeKelas: TipeKelas.PAGI, kelasRombel: 'TI C' }
+    },
+    {
+        pengguna: { id: '535240082', username: 'james.535240082@stu.untar.ac.id', nama: 'JAMES WILLIAM WIJAYA', role: Role.MAHASISWA, isAktif: true },
+        mahasiswa: { nim: '535240082', angkatan: '2024', tipeKelas: TipeKelas.PAGI, kelasRombel: 'TI C' }
+    },
+    {
+        pengguna: { id: '535240083', username: 'adelia.535240083@stu.untar.ac.id', nama: 'ADELIA SASSY MULYA', role: Role.MAHASISWA, isAktif: true },
+        mahasiswa: { nim: '535240083', angkatan: '2024', tipeKelas: TipeKelas.PAGI, kelasRombel: 'TI C' }
+    },
+    {
+        pengguna: { id: '535240084', username: 'kyeth.535240084@stu.untar.ac.id', nama: 'KYETH FERNANDO', role: Role.MAHASISWA, isAktif: true },
+        mahasiswa: { nim: '535240084', angkatan: '2024', tipeKelas: TipeKelas.PAGI, kelasRombel: 'TI C' }
+    },
+    {
+        pengguna: { id: '535240085', username: 'excell.535240085@stu.untar.ac.id', nama: 'EXCELL HANZOVIN HAKIM', role: Role.MAHASISWA, isAktif: true },
+        mahasiswa: { nim: '535240085', angkatan: '2024', tipeKelas: TipeKelas.PAGI, kelasRombel: 'TI C' }
+    },
+    {
+        pengguna: { id: '535240086', username: 'priscilla.535240086@stu.untar.ac.id', nama: 'PRISCILLA REBEKAH TEDJA', role: Role.MAHASISWA, isAktif: true },
+        mahasiswa: { nim: '535240086', angkatan: '2024', tipeKelas: TipeKelas.PAGI, kelasRombel: 'TI C' }
+    },
+    {
+        pengguna: { id: '535240087', username: 'ferdinand.535240087@stu.untar.ac.id', nama: 'FERDINAND GOUWADI', role: Role.MAHASISWA, isAktif: true },
+        mahasiswa: { nim: '535240087', angkatan: '2024', tipeKelas: TipeKelas.PAGI, kelasRombel: 'TI C' }
+    },
+    {
+        pengguna: { id: '535240088', username: 'jeremias.535240088@stu.untar.ac.id', nama: 'JEREMIAS DEVANO SARUMPAET', role: Role.MAHASISWA, isAktif: true },
+        mahasiswa: { nim: '535240088', angkatan: '2024', tipeKelas: TipeKelas.PAGI, kelasRombel: 'TI C' }
+    },
+    {
+        pengguna: { id: '535240089', username: 'thendy.535240089@stu.untar.ac.id', nama: 'THENDY HOSE', role: Role.MAHASISWA, isAktif: true },
+        mahasiswa: { nim: '535240089', angkatan: '2024', tipeKelas: TipeKelas.PAGI, kelasRombel: 'TI C' }
+    },
+    {
+        pengguna: { id: '535240090', username: 'delvyn.535240090@stu.untar.ac.id', nama: 'DELVYN PUTRA', role: Role.MAHASISWA, isAktif: true },
+        mahasiswa: { nim: '535240090', angkatan: '2024', tipeKelas: TipeKelas.PAGI, kelasRombel: 'TI C' }
+    },
+    {
+        pengguna: { id: '535240091', username: 'jeffly.535240091@stu.untar.ac.id', nama: 'JEFFLY', role: Role.MAHASISWA, isAktif: true },
+        mahasiswa: { nim: '535240091', angkatan: '2024', tipeKelas: TipeKelas.PAGI, kelasRombel: 'TI C' }
+    },
+    {
+        pengguna: { id: '535240092', username: 'andrean.535240092@stu.untar.ac.id', nama: 'ANDREAN', role: Role.MAHASISWA, isAktif: true },
+        mahasiswa: { nim: '535240092', angkatan: '2024', tipeKelas: TipeKelas.PAGI, kelasRombel: 'TI C' }
+    },
+    {
+        pengguna: { id: '535240093', username: 'christoforus.535240093@stu.untar.ac.id', nama: 'CHRISTOFORUS VIENCENT HENDRIANUS', role: Role.MAHASISWA, isAktif: true },
+        mahasiswa: { nim: '535240093', angkatan: '2024', tipeKelas: TipeKelas.PAGI, kelasRombel: 'TI C' }
+    },
+    {
+        pengguna: { id: '535240143', username: 'axel.535240143@stu.untar.ac.id', nama: 'AXEL CHRISDY SANJAYA', role: Role.MAHASISWA, isAktif: true },
+        mahasiswa: { nim: '535240143', angkatan: '2024', tipeKelas: TipeKelas.PAGI, kelasRombel: 'TI C' }
+    },
+    {
+        pengguna: { id: '535240144', username: 'nicholas.535240144@stu.untar.ac.id', nama: 'NICHOLAS ISAIAH', role: Role.MAHASISWA, isAktif: true },
+        mahasiswa: { nim: '535240144', angkatan: '2024', tipeKelas: TipeKelas.PAGI, kelasRombel: 'TI C' }
+    },
+    {
+        pengguna: { id: '535240145', username: 'davina.535240145@stu.untar.ac.id', nama: 'DAVINA POSH', role: Role.MAHASISWA, isAktif: true },
+        mahasiswa: { nim: '535240145', angkatan: '2024', tipeKelas: TipeKelas.PAGI, kelasRombel: 'TI C' }
+    },
+    {
+        pengguna: { id: '535240175', username: 'kaming.535240175@stu.untar.ac.id', nama: 'KAMING', role: Role.MAHASISWA, isAktif: true },
+        mahasiswa: { nim: '535240175', angkatan: '2024', tipeKelas: TipeKelas.PAGI, kelasRombel: 'TI C' }
+    },
+    {
+        pengguna: { id: '535240176', username: 'tandwiyan.535240176@stu.untar.ac.id', nama: 'TANDWIYAN TALENTA', role: Role.MAHASISWA, isAktif: true },
+        mahasiswa: { nim: '535240176', angkatan: '2024', tipeKelas: TipeKelas.PAGI, kelasRombel: 'TI C' }
+    },
+    {
+        pengguna: { id: '535240179', username: 'juan.535240179@stu.untar.ac.id', nama: 'JUAN CHRISTIAN HANDOKO', role: Role.MAHASISWA, isAktif: true },
+        mahasiswa: { nim: '535240179', angkatan: '2024', tipeKelas: TipeKelas.PAGI, kelasRombel: 'TI C' }
+    },
+    {
+        pengguna: { id: '535240180', username: 'rendy.535240180@stu.untar.ac.id', nama: 'RENDY DENNY', role: Role.MAHASISWA, isAktif: true },
+        mahasiswa: { nim: '535240180', angkatan: '2024', tipeKelas: TipeKelas.PAGI, kelasRombel: 'TI C' }
+    },
+    {
+        pengguna: { id: '535240183', username: 'affan.535240183@stu.untar.ac.id', nama: 'AFFAN MOSHE', role: Role.MAHASISWA, isAktif: true },
+        mahasiswa: { nim: '535240183', angkatan: '2024', tipeKelas: TipeKelas.PAGI, kelasRombel: 'TI C' }
+    },
+    {
+        pengguna: { id: '535240184', username: 'yohanan.535240184@stu.untar.ac.id', nama: 'YOHANAN PANONDANG MARULITUA PASARIBU', role: Role.MAHASISWA, isAktif: true },
+        mahasiswa: { nim: '535240184', angkatan: '2024', tipeKelas: TipeKelas.PAGI, kelasRombel: 'TI C' }
+    },
+    {
+        pengguna: { id: '535240188', username: 'jessica.535240188@stu.untar.ac.id', nama: 'JESSICA PEREZ CHEN', role: Role.MAHASISWA, isAktif: true },
+        mahasiswa: { nim: '535240188', angkatan: '2024', tipeKelas: TipeKelas.PAGI, kelasRombel: 'TI C' }
+    }
 ]
 
 async function main() {
@@ -156,86 +300,7 @@ async function main() {
         }
     }
 
-    const mahasiswaBaru = [
-        { nim: '535240064', nama: 'VINCEN OKTA RAMADHAN' },
-        { nim: '535240066', nama: 'GIAN KENAR JAVIER' },
-        { nim: '535240067', nama: 'DARREL YOSEPH' },
-        { nim: '535240068', nama: 'CHARLESS' },
-        { nim: '535240069', nama: 'MARTIN CAHYADI' },
-        { nim: '535240070', nama: 'CHRISTY JONES' },
-        { nim: '535240071', nama: 'VANESA YOLANDA' },
-        { nim: '535240073', nama: 'ADVENDRA DESWANTA' },
-        { nim: '535240075', nama: 'CATHRINE SANDRINA' },
-        { nim: '535240076', nama: 'CORNELIUS CLARENCE TANUSULISTYO' },
-        { nim: '535240077', nama: 'FABIO FRANCISCO' },
-        { nim: '535240078', nama: 'NAOMI WILLIAM SUGIANTARA' },
-        { nim: '535240079', nama: 'JOE NICKSON LIE' },
-        { nim: '535240080', nama: 'MICHAEL ANDRE ANTORO' },
-        { nim: '535240081', nama: 'CASTILLO D`ARTAGNAN ALDRIN' },
-        { nim: '535240082', nama: 'JAMES WILLIAM WIJAYA' },
-        { nim: '535240083', nama: 'ADELIA SASSY MULYA' },
-        { nim: '535240084', nama: 'KYETH FERNANDO' },
-        { nim: '535240085', nama: 'EXCELL HANZOVIN HAKIM' },
-        { nim: '535240086', nama: 'PRISCILLA REBEKAH TEDJA' },
-        { nim: '535240087', nama: 'FERDINAND GOUWADI' },
-        { nim: '535240088', nama: 'JEREMIAS DEVANO SARUMPAET' },
-        { nim: '535240089', nama: 'THENDY HOSE' },
-        { nim: '535240090', nama: 'DELVYN PUTRA' },
-        { nim: '535240091', nama: 'JEFFLY' },
-        { nim: '535240092', nama: 'ANDREAN' },
-        { nim: '535240093', nama: 'CHRISTOFORUS VIENCENT HENDRIANUS' },
-        { nim: '535240143', nama: 'AXEL CHRISDY SANJAYA' },
-        { nim: '535240144', nama: 'NICHOLAS ISAIAH' },
-        { nim: '535240145', nama: 'DAVINA POSH' },
-        { nim: '535240175', nama: 'KAMING' },
-        { nim: '535240176', nama: 'TANDWIYAN TALENTA' },
-        { nim: '535240179', nama: 'JUAN CHRISTIAN HANDOKO' },
-        { nim: '535240180', nama: 'RENDY DENNY' },
-        { nim: '535240183', nama: 'AFFAN MOSHE' },
-        { nim: '535240184', nama: 'YOHANAN PANONDANG MARULITUA PASARIBU' },
-        { nim: '535240187', nama: "NAISYA YUEN RA'AF" },
-        { nim: '535240188', nama: 'JESSICA PEREZ CHEN' }
-    ];
 
-    for (const mhs of mahasiswaBaru) {
-        const username = `${mhs.nama.split(' ')[0].toLowerCase().replace(/[^a-z]/g, '')}.${mhs.nim}@stu.untar.ac.id`;
-        await prisma.pengguna.upsert({
-            where: { id: mhs.nim },
-            update: {
-                username,
-                nama: mhs.nama,
-                role: Role.MAHASISWA,
-                isAktif: true,
-                password: hashedPassword,
-                deletedAt: null,
-            },
-            create: {
-                id: mhs.nim,
-                username,
-                nama: mhs.nama,
-                role: Role.MAHASISWA,
-                isAktif: true,
-                password: hashedPassword,
-            },
-        });
-
-        await prisma.mahasiswa.upsert({
-            where: { nim: mhs.nim },
-            update: {
-                angkatan: '2024',
-                tipeKelas: TipeKelas.PAGI,
-                kelasRombel: 'TI C',
-                penggunaId: mhs.nim,
-            },
-            create: {
-                nim: mhs.nim,
-                angkatan: '2024',
-                tipeKelas: TipeKelas.PAGI,
-                kelasRombel: 'TI C',
-                penggunaId: mhs.nim,
-            },
-        });
-    }
 
     // Seed some MataKuliah (courses)
     const mataKuliahSeed = [{
@@ -327,25 +392,32 @@ async function main() {
     }
 
     // Seed Jadwal (connect to kelas and ruangan via their unique keys)
-    const jadwalSeed = [{
-            idJadwal: 'JAD001',
+    const dosenNips = ['198503152010121001', '198505202012122003', '198702152011022001', '198808122015032002'];
+    const jadwalSeed = [];
+    let kId = 1;
+    for (let i = 0; i < 4; i++) {
+        const nip = dosenNips[i];
+        jadwalSeed.push({
+            idJadwal: `JAD00${kId}`,
             hari: 'Senin',
             jamMulai: new Date('2026-06-01T09:00:00.000Z'),
             jamSelesai: new Date('2026-06-01T11:00:00.000Z'),
-            kelasIdKelas: 'KEL001',
+            kelasIdKelas: `KEL0${kId < 10 ? '0' + kId : kId}`,
             ruanganIdRuangan: 'R001',
-            pengajarNip: '198503152010121001',
-        },
-        {
-            idJadwal: 'JAD002',
+            pengajarNip: nip,
+        });
+        kId++;
+        jadwalSeed.push({
+            idJadwal: `JAD00${kId}`,
             hari: 'Selasa',
             jamMulai: new Date('2026-06-02T13:00:00.000Z'),
             jamSelesai: new Date('2026-06-02T15:00:00.000Z'),
-            kelasIdKelas: 'KEL012',
+            kelasIdKelas: `KEL0${kId < 10 ? '0' + kId : kId}`,
             ruanganIdRuangan: 'R002',
-            pengajarNip: '198808122015032002',
-        },
-    ]
+            pengajarNip: nip,
+        });
+        kId++;
+    }
 
     for (const j of jadwalSeed) {
         await prisma.jadwal.upsert({
@@ -489,10 +561,10 @@ async function main() {
     // Additional seed from frontend mockAttendance
     // MataKuliah for frontend demo courses
     const demoCourses = [
-        { idMatkul: 'MAT004', kodeMatkul: 'SD101', namaMatkul: 'Software Development', sks: 3 },
-        { idMatkul: 'MAT005', kodeMatkul: 'PW101', namaMatkul: 'Pemrograman Web', sks: 3 },
-        { idMatkul: 'MAT006', kodeMatkul: 'KB101', namaMatkul: 'Kecerdasan Buatan', sks: 3 },
-        { idMatkul: 'MAT007', kodeMatkul: 'BDL101', namaMatkul: 'Basis Data Lanjut', sks: 3 },
+        { idMatkul: 'MAT104', kodeMatkul: 'SD101', namaMatkul: 'Software Development', sks: 3 },
+        { idMatkul: 'MAT105', kodeMatkul: 'PW101', namaMatkul: 'Pemrograman Web', sks: 3 },
+        { idMatkul: 'MAT106', kodeMatkul: 'KB101', namaMatkul: 'Kecerdasan Buatan', sks: 3 },
+        { idMatkul: 'MAT107', kodeMatkul: 'BDL101', namaMatkul: 'Basis Data Lanjut', sks: 3 },
     ]
 
     for (const c of demoCourses) {
@@ -507,10 +579,10 @@ async function main() {
 
     // Kelas and Jadwal for demo courses
     const demoKelas = [
-        { idKelas: 'KEL003', namaKelas: 'SD-01', matkulId: 'MAT004', ruanganId: 'R001' },
-        { idKelas: 'KEL004', namaKelas: 'PW-01', matkulId: 'MAT005', ruanganId: 'R002' },
-        { idKelas: 'KEL005', namaKelas: 'KB-01', matkulId: 'MAT006', ruanganId: 'R002' },
-        { idKelas: 'KEL006', namaKelas: 'BDL-01', matkulId: 'MAT007', ruanganId: 'R001' },
+        { idKelas: 'KEL103', namaKelas: 'SD-01 (TI C)', matkulId: 'MAT104', ruanganId: 'R001' },
+        { idKelas: 'KEL104', namaKelas: 'PW-01', matkulId: 'MAT105', ruanganId: 'R002' },
+        { idKelas: 'KEL105', namaKelas: 'KB-01', matkulId: 'MAT106', ruanganId: 'R002' },
+        { idKelas: 'KEL106', namaKelas: 'BDL-01', matkulId: 'MAT107', ruanganId: 'R001' },
     ]
 
     for (const k of demoKelas) {
@@ -528,12 +600,42 @@ async function main() {
         })
     }
 
-    const demoJadwal = [
-        { idJadwal: 'JAD002', hari: 'Senin', jamMulai: new Date('2026-05-29T08:00:00.000Z'), jamSelesai: new Date('2026-05-29T10:00:00.000Z'), kelasId: 'KEL003', ruanganId: 'R001', pengajarNip: '198808122015032002' },
-        { idJadwal: 'JAD003', hari: 'Senin', jamMulai: new Date('2026-05-29T10:30:00.000Z'), jamSelesai: new Date('2026-05-29T12:30:00.000Z'), kelasId: 'KEL004', ruanganId: 'R002', pengajarNip: '198503152010121001' },
-        { idJadwal: 'JAD004', hari: 'Rabu', jamMulai: new Date('2026-05-31T13:00:00.000Z'), jamSelesai: new Date('2026-05-31T15:00:00.000Z'), kelasId: 'KEL005', ruanganId: 'R002', pengajarNip: '198808122015032002' },
-        { idJadwal: 'JAD005', hari: 'Rabu', jamMulai: new Date('2026-05-19T08:00:00.000Z'), jamSelesai: new Date('2026-05-19T10:00:00.000Z'), kelasId: 'KEL006', ruanganId: 'R001', pengajarNip: '198503152010121001' },
-    ]
+    const demoJadwal = [];
+    const demoSesi = [];
+    const days = ['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu', 'Minggu'];
+    const demoClasses = ['KEL103', 'KEL104', 'KEL105', 'KEL106'];
+    const todayStr = new Date().toLocaleDateString('id-ID', { weekday: 'long' });
+    let dJadwalId = 100;
+    
+    for (let d = 0; d < 7; d++) {
+        const schedDate = new Date();
+        const diff = d - schedDate.getDay() + (schedDate.getDay() === 0 ? -6 : 1);
+        schedDate.setDate(schedDate.getDate() + diff);
+        
+        for (let c = 0; c < 4; c++) {
+            dJadwalId++;
+            const nip = dosenNips[(d + c) % 4];
+            
+            demoJadwal.push({
+                idJadwal: `JAD${dJadwalId}`,
+                hari: days[d],
+                jamMulai: new Date(new Date(schedDate).setHours(8 + c, 0, 0, 0)),
+                jamSelesai: new Date(new Date(schedDate).setHours(11 + c, 0, 0, 0)),
+                kelasId: demoClasses[c],
+                ruanganId: 'R001',
+                pengajarNip: nip
+            });
+            
+            if (days[d] === todayStr) {
+                demoSesi.push({
+                    idSesi: `S${dJadwalId}`,
+                    jadwalId: `JAD${dJadwalId}`,
+                    pengajarNip: nip,
+                    qrToken: `QRTOKEN-DEMO-${dJadwalId}`,
+                });
+            }
+        }
+    }
 
     for (const j of demoJadwal) {
         await prisma.jadwal.upsert({
@@ -558,14 +660,6 @@ async function main() {
         })
     }
 
-    // Create sessions for demo jadwal
-    const demoSesi = [
-        { idSesi: 'S002', jadwalId: 'JAD002', pengajarNip: '198808122015032002', qrToken: 'QRTOKEN-SD-001' },
-        { idSesi: 'S003', jadwalId: 'JAD003', pengajarNip: '198503152010121001', qrToken: 'QRTOKEN-PW-001' },
-        { idSesi: 'S004', jadwalId: 'JAD004', pengajarNip: '198808122015032002', qrToken: 'QRTOKEN-KB-001' },
-        { idSesi: 'S005', jadwalId: 'JAD005', pengajarNip: '198503152010121001', qrToken: 'QRTOKEN-BDL-001' },
-    ]
-
     for (const s of demoSesi) {
         await prisma.sesiPresensi.upsert({
             where: { idSesi: s.idSesi },
@@ -580,18 +674,18 @@ async function main() {
                 pengajar: { connect: { nip: s.pengajarNip } },
                 qrToken: s.qrToken,
                 waktuBuka: new Date(),
-                autoCloseAt: new Date(Date.now() + 1000 * 60 * 60),
+                autoCloseAt: new Date(Date.now() + 1000 * 60 * 60 * 5),
             },
         })
     }
 
     // Map attendanceHistory from frontend mock to DataPresensi entries
     const mockAttendance = [
-        { idPresensi: 'HIST001', mahasiswaNim: '535240187', sesiId: 'S005', statusKehadiran: 'HADIR', metodeInput: 'MANUAL', waktuAbsen: new Date('2026-05-19T08:05:00.000Z') },
-        { idPresensi: 'HIST002', mahasiswaNim: '535240075', sesiId: 'S003', statusKehadiran: 'HADIR', metodeInput: 'QR', waktuAbsen: new Date('2026-05-18T10:28:00.000Z') },
-        { idPresensi: 'HIST003', mahasiswaNim: '535240187', sesiId: 'S004', statusKehadiran: 'TERLAMBAT', metodeInput: 'QR', waktuAbsen: new Date('2026-05-17T13:17:00.000Z') },
-        { idPresensi: 'HIST004', mahasiswaNim: '535240075', sesiId: 'S002', statusKehadiran: 'HADIR', metodeInput: 'QR', waktuAbsen: new Date('2026-05-16T08:02:00.000Z') },
-        { idPresensi: 'HIST005', mahasiswaNim: '535240075', sesiId: 'S004', statusKehadiran: 'TERLAMBAT', metodeInput: 'MANUAL', waktuAbsen: new Date('2026-05-17T13:22:00.000Z') },
+        { idPresensi: 'HIST001', mahasiswaNim: '535240187', sesiId: 'S105', statusKehadiran: 'HADIR', metodeInput: 'MANUAL', waktuAbsen: new Date('2026-05-19T08:05:00.000Z') },
+        { idPresensi: 'HIST002', mahasiswaNim: '535240075', sesiId: 'S103', statusKehadiran: 'HADIR', metodeInput: 'QR', waktuAbsen: new Date('2026-05-18T10:28:00.000Z') },
+        { idPresensi: 'HIST003', mahasiswaNim: '535240187', sesiId: 'S104', statusKehadiran: 'TERLAMBAT', metodeInput: 'QR', waktuAbsen: new Date('2026-05-17T13:17:00.000Z') },
+        { idPresensi: 'HIST004', mahasiswaNim: '535240075', sesiId: 'S102', statusKehadiran: 'HADIR', metodeInput: 'QR', waktuAbsen: new Date('2026-05-16T08:02:00.000Z') },
+        { idPresensi: 'HIST005', mahasiswaNim: '535240075', sesiId: 'S104', statusKehadiran: 'TERLAMBAT', metodeInput: 'MANUAL', waktuAbsen: new Date('2026-05-17T13:22:00.000Z') },
     ]
 
     for (const p of mockAttendance) {
@@ -643,6 +737,27 @@ async function main() {
                 status: 'MENUNGGU_DIPROSES',
             },
         })
+    }
+
+    // Auto-enroll all 'TI C' students into SD-01 (KEL103)
+    const allTIC = await prisma.mahasiswa.findMany({ where: { kelasRombel: 'TI C' } })
+    const kelasSD01 = await prisma.kelas.findUnique({ where: { idKelas: 'KEL103' } })
+    if (kelasSD01 && allTIC.length > 0) {
+        for (const m of allTIC) {
+            await prisma.mahasiswaKelas.upsert({
+                where: {
+                    mahasiswaId_kelasId: {
+                        mahasiswaId: m.id,
+                        kelasId: kelasSD01.id,
+                    }
+                },
+                update: {},
+                create: {
+                    mahasiswaId: m.id,
+                    kelasId: kelasSD01.id,
+                }
+            })
+        }
     }
 
     console.log('Seed pengguna backend selesai. Password default: Password123!')
