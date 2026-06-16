@@ -48,15 +48,15 @@ export class SesiService {
         'Sesi presensi untuk jadwal ini sudah aktif',
       );
 
-    // 4. Validasi waktu — boleh buka 30 menit sebelum jam mulai
+    // 4. Validasi waktu - DIMATIKAN SEMENTARA AGAR MUDAH UNTUK DEMO
     const sekarang = new Date();
-    const batasBuka = new Date(jadwal.jamMulai);
-    batasBuka.setMinutes(batasBuka.getMinutes() - 30);
-    if (sekarang < batasBuka) {
-      throw new BadRequestException(
-        'Belum waktunya membuka sesi. Maksimal 30 menit sebelum jam mulai.',
-      );
-    }
+    // const batasBuka = new Date(jadwal.jamMulai);
+    // batasBuka.setMinutes(batasBuka.getMinutes() - 30);
+    // if (sekarang < batasBuka) {
+    //   throw new BadRequestException(
+    //     'Belum waktunya membuka sesi. Maksimal 30 menit sebelum jam mulai.',
+    //   );
+    // }
 
     // 5. Hitung autoCloseAt = jamSelesai + 15 menit
     const autoCloseAt = new Date(jadwal.jamSelesai);
