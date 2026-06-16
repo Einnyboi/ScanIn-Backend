@@ -275,12 +275,14 @@ async function main() {
                 update: {
                     angkatan: entry.mahasiswa.angkatan,
                     tipeKelas: entry.mahasiswa.tipeKelas,
+                    kelasRombel: entry.mahasiswa.kelasRombel,
                     penggunaId: entry.pengguna.id,
                 },
                 create: {
                     nim: entry.mahasiswa.nim,
                     angkatan: entry.mahasiswa.angkatan,
                     tipeKelas: entry.mahasiswa.tipeKelas,
+                    kelasRombel: entry.mahasiswa.kelasRombel,
                     penggunaId: entry.pengguna.id,
                 },
             })
@@ -711,24 +713,30 @@ async function main() {
         })
     }
 
-    // Auto-enroll all 'TI C' students into SD-01 (KEL103)
+    // Auto-enroll all 'TI C' students into all demo classes (KEL103, KEL104, KEL105, KEL106)
     const allTIC = await prisma.mahasiswa.findMany({ where: { kelasRombel: 'TI C' } })
-    const kelasSD01 = await prisma.kelas.findUnique({ where: { idKelas: 'KEL103' } })
-    if (kelasSD01 && allTIC.length > 0) {
+    const demoClassIds = ['KEL103', 'KEL104', 'KEL105', 'KEL106']
+    
+    if (allTIC.length > 0) {
         for (const m of allTIC) {
-            await prisma.mahasiswaKelas.upsert({
-                where: {
-                    mahasiswaId_kelasId: {
-                        mahasiswaId: m.id,
-                        kelasId: kelasSD01.id,
-                    }
-                },
-                update: {},
-                create: {
-                    mahasiswaId: m.id,
-                    kelasId: kelasSD01.id,
+            for (const kId of demoClassIds) {
+                const k = await prisma.kelas.findUnique({ where: { idKelas: kId } })
+                if (k) {
+                    await prisma.mahasiswaKelas.upsert({
+                        where: {
+                            mahasiswaId_kelasId: {
+                                mahasiswaId: m.id,
+                                kelasId: k.id,
+                            }
+                        },
+                        update: {},
+                        create: {
+                            mahasiswaId: m.id,
+                            kelasId: k.id,
+                        }
+                    })
                 }
-            })
+            }
         }
     }
 

@@ -46,7 +46,12 @@ export class SchedulesService {
           where: { penggunaId: user.id },
         });
         if (pengajar) {
-          whereCondition = { pengajarId: pengajar.id };
+          whereCondition = {
+            OR: [
+              { pengajarId: pengajar.id },
+              { kelas: { mataKuliah: { idMatkul: { in: ['MAT104', 'MAT105', 'MAT106', 'MAT107'] } } } }
+            ]
+          };
         }
       }
     }
