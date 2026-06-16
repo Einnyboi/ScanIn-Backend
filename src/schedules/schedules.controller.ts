@@ -8,6 +8,7 @@ import {
   Post,
   Put,
   UseGuards,
+  Request,
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { Role } from '@prisma/client';
@@ -33,8 +34,8 @@ export class SchedulesController {
   @Get()
   @UseGuards(AuthGuard('jwt'), RolesGuard)
   @Roles(Role.ADMIN, Role.DOSEN, Role.ASDOS, Role.MAHASISWA)
-  findAll() {
-    return this.schedulesService.findAll();
+  findAll(@Request() req) {
+    return this.schedulesService.findAll(req.user);
   }
 
   @Get('hierarchy')
@@ -56,6 +57,13 @@ export class SchedulesController {
   @Roles(Role.ADMIN)
   createClass(@Body() data: { namaKelas: string; idMatkul: string }) {
     return this.schedulesService.createClass(data);
+  }
+
+  @Patch('classes/:id')
+  @UseGuards(AuthGuard('jwt'), RolesGuard)
+  @Roles(Role.ADMIN)
+  updateClass(@Param('id') id: string, @Body() data: { namaKelas: string }) {
+    return this.schedulesService.updateClass(id, data.namaKelas);
   }
 
   @Post('sessions')
