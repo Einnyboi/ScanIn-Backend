@@ -40,22 +40,29 @@ export class PresensiService {
     }
 
     // 2. Decode QR token
-    let decoded: any;
+    let mahasiswaId: string | undefined;
+    let mahasiswaNim: string | undefined;
+
     try {
-      decoded = this.jwt.verify(dto.qrToken);
+      const decoded: any = this.jwt.verify(dto.qrToken);
+      if (decoded.type !== 'QR_PRESENSI') {
+        throw new BadRequestException('QR Code tidak valid');
+      }
+      mahasiswaId = decoded.sub; // penggunaId mahasiswa
     } catch {
-      throw new BadRequestException(
-        'QR Code tidak valid atau sudah kedaluwarsa',
-      );
+      // Jika bukan JWT, coba parse dari format custom token frontend: courseId-studentId(nim)-timestamp-random
+      const parts = dto.qrToken.split('-');
+      if (parts.length >= 4) {
+        mahasiswaNim = parts[1];
+      } else {
+        throw new BadRequestException(
+          'QR Code tidak valid atau sudah kedaluwarsa',
+        );
+      }
     }
 
-    if (decoded.type !== 'QR_PRESENSI') {
-      throw new BadRequestException('QR Code tidak valid');
-    }
-
-    const mahasiswaId = decoded.sub; // ini adalah penggunaId mahasiswa
     const mahasiswa = await this.prisma.mahasiswa.findUnique({
-      where: { penggunaId: mahasiswaId },
+      where: mahasiswaId ? { penggunaId: mahasiswaId } : { nim: mahasiswaNim },
     });
 
     if (!mahasiswa) {
@@ -80,7 +87,7 @@ export class PresensiService {
       throw new ForbiddenException('Mahasiswa tidak terdaftar di kelas ini');
     }
 
-    // 4. Update status presensi yang sudah dibuat (defaultnya BELUM_ADA_KETERANGAN)
+    // 4. Update atau buat status presensi
     const presensiAwal = await this.prisma.dataPresensi.findUnique({
       where: {
         mahasiswaId_sesiId: {
@@ -90,13 +97,10 @@ export class PresensiService {
       },
     });
 
-    if (!presensiAwal) {
-      throw new BadRequestException('Data mahasiswa tidak ada di sesi ini');
-    }
-
     if (
-      presensiAwal.statusKehadiran === StatusKehadiran.HADIR ||
-      presensiAwal.statusKehadiran === StatusKehadiran.TERLAMBAT
+      presensiAwal &&
+      (presensiAwal.statusKehadiran === StatusKehadiran.HADIR ||
+        presensiAwal.statusKehadiran === StatusKehadiran.TERLAMBAT)
     ) {
       throw new BadRequestException(
         'Mahasiswa sudah presensi hadir/terlambat di sesi ini',
@@ -113,14 +117,21 @@ export class PresensiService {
         : StatusKehadiran.TERLAMBAT;
 
     // 6. Simpan presensi
-    const presensi = await this.prisma.dataPresensi.update({
+    const presensi = await this.prisma.dataPresensi.upsert({
       where: {
         mahasiswaId_sesiId: {
           mahasiswaId: mahasiswa.id,
           sesiId: dto.sesiId,
         },
       },
-      data: {
+      update: {
+        statusKehadiran: status,
+        metodeInput: MetodeInput.QR,
+        waktuAbsen: sekarang,
+      },
+      create: {
+        mahasiswaId: mahasiswa.id,
+        sesiId: dto.sesiId,
         statusKehadiran: status,
         metodeInput: MetodeInput.QR,
         waktuAbsen: sekarang,
