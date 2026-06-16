@@ -37,6 +37,11 @@ export class AdminUsersController {
     return this.adminUsersService.create(user);
   }
 
+  @Post('bulk')
+  createBulk(@Body() users: AdminUserDto[]) {
+    return this.adminUsersService.createBulk(users);
+  }
+
   @Patch(':role/:id')
   update(
     @Param('role') role: AdminUserRole,
