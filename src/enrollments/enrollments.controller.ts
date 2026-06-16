@@ -6,6 +6,7 @@ import {
   Param,
   Patch,
   Post,
+  Query,
 } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { EnrollmentsService } from './enrollments.service';
@@ -20,6 +21,11 @@ export class EnrollmentsController {
   @Get()
   findAll() {
     return this.enrollmentsService.findAll();
+  }
+
+  @Get('search-students')
+  searchStudents(@Query('q') q: string) {
+    return this.enrollmentsService.searchStudents(q || '');
   }
 
   @Get('mahasiswa/:identifier')
@@ -40,6 +46,23 @@ export class EnrollmentsController {
   @Patch(':id')
   update(@Param('id') id: string, @Body() dto: UpdateEnrollmentDto) {
     return this.enrollmentsService.update(id, dto);
+  }
+
+  @Post('classes/:id/enroll/bulk')
+  enrollBulk(
+    @Param('id') kelasId: string,
+    @Body('angkatan') angkatan: string,
+    @Body('tipeKelas') tipeKelas?: string,
+  ) {
+    return this.enrollmentsService.enrollBulk(kelasId, angkatan, tipeKelas);
+  }
+
+  @Post('classes/:id/enroll/manual')
+  enrollManual(
+    @Param('id') kelasId: string,
+    @Body('mahasiswaIds') mahasiswaIds: string[],
+  ) {
+    return this.enrollmentsService.enrollManual(kelasId, mahasiswaIds);
   }
 
   @Delete(':id')

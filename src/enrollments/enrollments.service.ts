@@ -137,6 +137,107 @@ export class EnrollmentsService {
     return { deleted: true, id };
   }
 
+  async enrollBulk(kelasId: string, angkatan: string, tipeKelas?: string) {
+    const kelas = await this.resolveKelasByIdentifier(kelasId);
+    if (!kelas) throw new NotFoundException('Kelas tidak ditemukan');
+
+    const mahasiswaList = await this.prisma.mahasiswa.findMany({
+      where: {
+        angkatan,
+        ...(tipeKelas ? { tipeKelas: tipeKelas as any } : {}),
+      },
+    });
+
+    if (!mahasiswaList.length) {
+      return { count: 0, message: 'Tidak ada mahasiswa yang cocok' };
+    }
+
+    const data = mahasiswaList.map((m) => ({
+      mahasiswaId: m.id,
+      kelasId: kelas.id,
+      isOverride: false,
+    }));
+
+    // Use transaction to ignore duplicates
+    let count = 0;
+    for (const item of data) {
+      try {
+        await this.prisma.mahasiswaKelas.upsert({
+          where: {
+            mahasiswaId_kelasId: {
+              mahasiswaId: item.mahasiswaId,
+              kelasId: item.kelasId,
+            },
+          },
+          update: {},
+          create: item,
+        });
+        count++;
+      } catch (e) {
+        // ignore
+      }
+    }
+
+    return { count, message: `Berhasil enroll ${count} mahasiswa` };
+  }
+
+  async enrollManual(kelasId: string, mahasiswaIds: string[]) {
+    const kelas = await this.resolveKelasByIdentifier(kelasId);
+    if (!kelas) throw new NotFoundException('Kelas tidak ditemukan');
+
+    let count = 0;
+    for (const mId of mahasiswaIds) {
+      const m = await this.resolveMahasiswaByIdentifier(mId);
+      if (!m) continue;
+
+      try {
+        await this.prisma.mahasiswaKelas.upsert({
+          where: {
+            mahasiswaId_kelasId: {
+              mahasiswaId: m.id,
+              kelasId: kelas.id,
+            },
+          },
+          update: {},
+          create: {
+            mahasiswaId: m.id,
+            kelasId: kelas.id,
+            isOverride: true,
+          },
+        });
+        count++;
+      } catch (e) {
+        // ignore
+      }
+    }
+
+    return { count, message: `Berhasil manual enroll ${count} mahasiswa` };
+  }
+
+  async searchStudents(query: string) {
+    const q = query.trim();
+    if (!q) return [];
+
+    const students = await this.prisma.mahasiswa.findMany({
+      where: {
+        OR: [
+          { nim: { contains: q, mode: 'insensitive' } },
+          { pengguna: { nama: { contains: q, mode: 'insensitive' } } },
+        ],
+      },
+      include: { pengguna: true },
+      take: 20,
+    });
+
+    return students.map((s) => ({
+      id: s.id,
+      nim: s.nim,
+      nama: s.pengguna.nama,
+      angkatan: s.angkatan,
+      tipeKelas: s.tipeKelas,
+    }));
+  }
+
   async resolveMahasiswaByIdentifier(identifier: string) {
     return this.prisma.mahasiswa.findFirst({
       where: {

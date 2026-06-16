@@ -37,6 +37,34 @@ export class SchedulesController {
     return this.schedulesService.findAll();
   }
 
+  @Get('hierarchy')
+  @UseGuards(AuthGuard('jwt'), RolesGuard)
+  @Roles(Role.ADMIN)
+  getHierarchy() {
+    return this.schedulesService.getHierarchy();
+  }
+
+  @Post('courses')
+  @UseGuards(AuthGuard('jwt'), RolesGuard)
+  @Roles(Role.ADMIN)
+  createCourse(@Body() data: { kodeMatkul: string; namaMatkul: string; sks: number }) {
+    return this.schedulesService.createCourse(data);
+  }
+
+  @Post('classes')
+  @UseGuards(AuthGuard('jwt'), RolesGuard)
+  @Roles(Role.ADMIN)
+  createClass(@Body() data: { namaKelas: string; idMatkul: string }) {
+    return this.schedulesService.createClass(data);
+  }
+
+  @Post('sessions')
+  @UseGuards(AuthGuard('jwt'), RolesGuard)
+  @Roles(Role.ADMIN)
+  createSession(@Body() data: { kelasId: string; hari: string; time: string; room: string; lecturer?: string }) {
+    return this.schedulesService.createSession(data);
+  }
+
   @Put()
   @UseGuards(AuthGuard('jwt'), RolesGuard)
   @Roles(Role.ADMIN)

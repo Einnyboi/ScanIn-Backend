@@ -22,6 +22,7 @@ const seedUsers = [{
         },
         mahasiswa: {
             nim: '535240187',
+            angkatan: '2024',
             tipeKelas: TipeKelas.PAGI,
             kelasRombel: 'TI A',
         },
@@ -36,6 +37,7 @@ const seedUsers = [{
         },
         mahasiswa: {
             nim: '535240075',
+            angkatan: '2024',
             tipeKelas: TipeKelas.SORE,
             kelasRombel: 'TI S',
         },
@@ -43,7 +45,7 @@ const seedUsers = [{
     {
         pengguna: {
             id: '198503152010121001',
-            username: 'ahmad.santoso@untar.ac.id',
+            username: 'ahmad.santoso@fti.untar.ac.id',
             nama: 'Dr. Ahmad Santoso',
             role: Role.DOSEN,
             isAktif: true,
@@ -54,8 +56,32 @@ const seedUsers = [{
     },
     {
         pengguna: {
+            id: '198505202012122003',
+            username: 'lina@fti.untar.ac.id',
+            nama: 'Prof. Lina',
+            role: Role.DOSEN,
+            isAktif: true,
+        },
+        pengajar: {
+            nip: '198505202012122003',
+        },
+    },
+    {
+        pengguna: {
+            id: '198702152011022001',
+            username: 'novariojp@fti.untar.ac.id',
+            nama: 'Novario Jaya Perdana',
+            role: Role.DOSEN,
+            isAktif: true,
+        },
+        pengajar: {
+            nip: '198702152011022001',
+        },
+    },
+    {
+        pengguna: {
             id: '198808122015032002',
-            username: 'siti.nurhaliza@untar.ac.id',
+            username: 'siti.nurhaliza@fti.untar.ac.id',
             nama: 'Ir. Siti Nurhaliza',
             role: Role.DOSEN,
             isAktif: true,
@@ -103,11 +129,13 @@ async function main() {
             await prisma.mahasiswa.upsert({
                 where: { nim: entry.mahasiswa.nim },
                 update: {
+                    angkatan: entry.mahasiswa.angkatan,
                     tipeKelas: entry.mahasiswa.tipeKelas,
                     penggunaId: entry.pengguna.id,
                 },
                 create: {
                     nim: entry.mahasiswa.nim,
+                    angkatan: entry.mahasiswa.angkatan,
                     tipeKelas: entry.mahasiswa.tipeKelas,
                     penggunaId: entry.pengguna.id,
                 },
@@ -225,6 +253,7 @@ async function main() {
             jamSelesai: new Date('2026-06-01T11:00:00.000Z'),
             kelasIdKelas: 'KEL001',
             ruanganIdRuangan: 'R001',
+            pengajarNip: '198503152010121001',
         },
         {
             idJadwal: 'JAD002',
@@ -233,6 +262,7 @@ async function main() {
             jamSelesai: new Date('2026-06-02T15:00:00.000Z'),
             kelasIdKelas: 'KEL012',
             ruanganIdRuangan: 'R002',
+            pengajarNip: '198808122015032002',
         },
     ]
 
@@ -245,6 +275,7 @@ async function main() {
                 jamSelesai: j.jamSelesai,
                 kelasId: (await prisma.kelas.findUnique({ where: { idKelas: j.kelasIdKelas } })).id,
                 ruanganId: (await prisma.ruangan.findUnique({ where: { idRuangan: j.ruanganIdRuangan } })).id,
+                pengajarId: j.pengajarNip ? (await prisma.pengajar.findUnique({ where: { nip: j.pengajarNip } })).id : null,
             },
             create: {
                 idJadwal: j.idJadwal,
@@ -253,6 +284,7 @@ async function main() {
                 jamSelesai: j.jamSelesai,
                 kelas: { connect: { idKelas: j.kelasIdKelas } },
                 ruangan: { connect: { idRuangan: j.ruanganIdRuangan } },
+                pengajar: j.pengajarNip ? { connect: { nip: j.pengajarNip } } : undefined,
             },
         })
     }
@@ -413,8 +445,8 @@ async function main() {
 
     await prisma.mahasiswa.upsert({
         where: { nim: '535240075' },
-        update: { tipeKelas: TipeKelas.PAGI, penggunaId: '535240075' },
-        create: { nim: '535240075', tipeKelas: TipeKelas.PAGI, penggunaId: '535240075' },
+        update: { angkatan: '2024', tipeKelas: TipeKelas.PAGI, penggunaId: '535240075' },
+        create: { nim: '535240075', angkatan: '2024', tipeKelas: TipeKelas.PAGI, penggunaId: '535240075' },
     })
 
     // Kelas and Jadwal for demo courses
@@ -441,10 +473,10 @@ async function main() {
     }
 
     const demoJadwal = [
-        { idJadwal: 'JAD002', hari: 'Senin', jamMulai: new Date('2026-05-29T08:00:00.000Z'), jamSelesai: new Date('2026-05-29T10:00:00.000Z'), kelasId: 'KEL003', ruanganId: 'R001' },
-        { idJadwal: 'JAD003', hari: 'Senin', jamMulai: new Date('2026-05-29T10:30:00.000Z'), jamSelesai: new Date('2026-05-29T12:30:00.000Z'), kelasId: 'KEL004', ruanganId: 'R002' },
-        { idJadwal: 'JAD004', hari: 'Rabu', jamMulai: new Date('2026-05-31T13:00:00.000Z'), jamSelesai: new Date('2026-05-31T15:00:00.000Z'), kelasId: 'KEL005', ruanganId: 'R002' },
-        { idJadwal: 'JAD005', hari: 'Rabu', jamMulai: new Date('2026-05-19T08:00:00.000Z'), jamSelesai: new Date('2026-05-19T10:00:00.000Z'), kelasId: 'KEL006', ruanganId: 'R001' },
+        { idJadwal: 'JAD002', hari: 'Senin', jamMulai: new Date('2026-05-29T08:00:00.000Z'), jamSelesai: new Date('2026-05-29T10:00:00.000Z'), kelasId: 'KEL003', ruanganId: 'R001', pengajarNip: '198808122015032002' },
+        { idJadwal: 'JAD003', hari: 'Senin', jamMulai: new Date('2026-05-29T10:30:00.000Z'), jamSelesai: new Date('2026-05-29T12:30:00.000Z'), kelasId: 'KEL004', ruanganId: 'R002', pengajarNip: '198503152010121001' },
+        { idJadwal: 'JAD004', hari: 'Rabu', jamMulai: new Date('2026-05-31T13:00:00.000Z'), jamSelesai: new Date('2026-05-31T15:00:00.000Z'), kelasId: 'KEL005', ruanganId: 'R002', pengajarNip: '198808122015032002' },
+        { idJadwal: 'JAD005', hari: 'Rabu', jamMulai: new Date('2026-05-19T08:00:00.000Z'), jamSelesai: new Date('2026-05-19T10:00:00.000Z'), kelasId: 'KEL006', ruanganId: 'R001', pengajarNip: '198503152010121001' },
     ]
 
     for (const j of demoJadwal) {
@@ -456,6 +488,7 @@ async function main() {
                 jamSelesai: j.jamSelesai,
                 kelas: { connect: { idKelas: j.kelasId } },
                 ruangan: { connect: { idRuangan: j.ruanganId } },
+                pengajar: j.pengajarNip ? { connect: { nip: j.pengajarNip } } : undefined,
             },
             create: {
                 idJadwal: j.idJadwal,
@@ -464,6 +497,7 @@ async function main() {
                 jamSelesai: j.jamSelesai,
                 kelas: { connect: { idKelas: j.kelasId } },
                 ruangan: { connect: { idRuangan: j.ruanganId } },
+                pengajar: j.pengajarNip ? { connect: { nip: j.pengajarNip } } : undefined,
             },
         })
     }
