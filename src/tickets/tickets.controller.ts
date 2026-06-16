@@ -28,7 +28,7 @@ export class TicketsController {
 
   @Get()
   @UseGuards(AuthGuard('jwt'), RolesGuard)
-  @Roles(Role.ADMIN, Role.DOSEN)
+  @Roles(Role.ADMIN, Role.DOSEN, Role.ASDOS)
   findAll() {
     return this.ticketsService.findAll();
   }
@@ -49,7 +49,7 @@ export class TicketsController {
 
   @Patch(':id')
   @UseGuards(AuthGuard('jwt'), RolesGuard)
-  @Roles(Role.ADMIN, Role.DOSEN)
+  @Roles(Role.ADMIN, Role.DOSEN, Role.ASDOS)
   update(@Param('id') id: string, @Body() ticket: CorrectionTicketDto) {
     return this.ticketsService.update(id, ticket);
   }
