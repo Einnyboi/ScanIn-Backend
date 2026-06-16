@@ -82,6 +82,20 @@ export class AdminUsersService {
     return this.toDto(createdWithProfile ?? created);
   }
 
+  async createBulk(users: AdminUserDto[]): Promise<AdminUserDto[]> {
+    const results: AdminUserDto[] = [];
+    for (const user of users) {
+      try {
+        const result = await this.create(user);
+        results.push(result);
+      } catch (e) {
+        console.error(`Failed to create user ${user.id}:`, e);
+        // Continue with others even if one fails
+      }
+    }
+    return results;
+  }
+
   async update(
     role: AdminUserRole,
     identifier: string,

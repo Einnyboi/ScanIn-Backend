@@ -156,6 +156,87 @@ async function main() {
         }
     }
 
+    const mahasiswaBaru = [
+        { nim: '535240064', nama: 'VINCEN OKTA RAMADHAN' },
+        { nim: '535240066', nama: 'GIAN KENAR JAVIER' },
+        { nim: '535240067', nama: 'DARREL YOSEPH' },
+        { nim: '535240068', nama: 'CHARLESS' },
+        { nim: '535240069', nama: 'MARTIN CAHYADI' },
+        { nim: '535240070', nama: 'CHRISTY JONES' },
+        { nim: '535240071', nama: 'VANESA YOLANDA' },
+        { nim: '535240073', nama: 'ADVENDRA DESWANTA' },
+        { nim: '535240075', nama: 'CATHRINE SANDRINA' },
+        { nim: '535240076', nama: 'CORNELIUS CLARENCE TANUSULISTYO' },
+        { nim: '535240077', nama: 'FABIO FRANCISCO' },
+        { nim: '535240078', nama: 'NAOMI WILLIAM SUGIANTARA' },
+        { nim: '535240079', nama: 'JOE NICKSON LIE' },
+        { nim: '535240080', nama: 'MICHAEL ANDRE ANTORO' },
+        { nim: '535240081', nama: 'CASTILLO D`ARTAGNAN ALDRIN' },
+        { nim: '535240082', nama: 'JAMES WILLIAM WIJAYA' },
+        { nim: '535240083', nama: 'ADELIA SASSY MULYA' },
+        { nim: '535240084', nama: 'KYETH FERNANDO' },
+        { nim: '535240085', nama: 'EXCELL HANZOVIN HAKIM' },
+        { nim: '535240086', nama: 'PRISCILLA REBEKAH TEDJA' },
+        { nim: '535240087', nama: 'FERDINAND GOUWADI' },
+        { nim: '535240088', nama: 'JEREMIAS DEVANO SARUMPAET' },
+        { nim: '535240089', nama: 'THENDY HOSE' },
+        { nim: '535240090', nama: 'DELVYN PUTRA' },
+        { nim: '535240091', nama: 'JEFFLY' },
+        { nim: '535240092', nama: 'ANDREAN' },
+        { nim: '535240093', nama: 'CHRISTOFORUS VIENCENT HENDRIANUS' },
+        { nim: '535240143', nama: 'AXEL CHRISDY SANJAYA' },
+        { nim: '535240144', nama: 'NICHOLAS ISAIAH' },
+        { nim: '535240145', nama: 'DAVINA POSH' },
+        { nim: '535240175', nama: 'KAMING' },
+        { nim: '535240176', nama: 'TANDWIYAN TALENTA' },
+        { nim: '535240179', nama: 'JUAN CHRISTIAN HANDOKO' },
+        { nim: '535240180', nama: 'RENDY DENNY' },
+        { nim: '535240183', nama: 'AFFAN MOSHE' },
+        { nim: '535240184', nama: 'YOHANAN PANONDANG MARULITUA PASARIBU' },
+        { nim: '535240187', nama: "NAISYA YUEN RA'AF" },
+        { nim: '535240188', nama: 'JESSICA PEREZ CHEN' }
+    ];
+
+    for (const mhs of mahasiswaBaru) {
+        const username = `${mhs.nama.split(' ')[0].toLowerCase().replace(/[^a-z]/g, '')}.${mhs.nim}@stu.untar.ac.id`;
+        await prisma.pengguna.upsert({
+            where: { id: mhs.nim },
+            update: {
+                username,
+                nama: mhs.nama,
+                role: Role.MAHASISWA,
+                isAktif: true,
+                password: hashedPassword,
+                deletedAt: null,
+            },
+            create: {
+                id: mhs.nim,
+                username,
+                nama: mhs.nama,
+                role: Role.MAHASISWA,
+                isAktif: true,
+                password: hashedPassword,
+            },
+        });
+
+        await prisma.mahasiswa.upsert({
+            where: { nim: mhs.nim },
+            update: {
+                angkatan: '2024',
+                tipeKelas: TipeKelas.PAGI,
+                kelasRombel: 'TI C',
+                penggunaId: mhs.nim,
+            },
+            create: {
+                nim: mhs.nim,
+                angkatan: '2024',
+                tipeKelas: TipeKelas.PAGI,
+                kelasRombel: 'TI C',
+                penggunaId: mhs.nim,
+            },
+        });
+    }
+
     // Seed some MataKuliah (courses)
     const mataKuliahSeed = [{
             idMatkul: 'MAT001',
@@ -422,32 +503,7 @@ async function main() {
         })
     }
 
-    // Ensure additional mahasiswa/pengguna referenced by frontend mock exist
-    await prisma.pengguna.upsert({
-        where: { id: '535240075' },
-        update: {
-            username: 'guest075@stu.untar.ac.id',
-            nama: 'Guest Mahasiswa 075',
-            role: Role.MAHASISWA,
-            isAktif: true,
-            password: hashedPassword,
-            deletedAt: null,
-        },
-        create: {
-            id: '535240075',
-            username: 'guest075@stu.untar.ac.id',
-            nama: 'Guest Mahasiswa 075',
-            role: Role.MAHASISWA,
-            isAktif: true,
-            password: hashedPassword,
-        },
-    })
 
-    await prisma.mahasiswa.upsert({
-        where: { nim: '535240075' },
-        update: { angkatan: '2024', tipeKelas: TipeKelas.PAGI, penggunaId: '535240075' },
-        create: { nim: '535240075', angkatan: '2024', tipeKelas: TipeKelas.PAGI, penggunaId: '535240075' },
-    })
 
     // Kelas and Jadwal for demo courses
     const demoKelas = [
