@@ -679,35 +679,7 @@ async function main() {
         })
     }
 
-    // Map attendanceHistory from frontend mock to DataPresensi entries
-    const mockAttendance = [
-        { idPresensi: 'HIST001', mahasiswaNim: '535240187', sesiId: 'S105', statusKehadiran: 'HADIR', metodeInput: 'MANUAL', waktuAbsen: new Date('2026-05-19T08:05:00.000Z') },
-        { idPresensi: 'HIST002', mahasiswaNim: '535240075', sesiId: 'S103', statusKehadiran: 'HADIR', metodeInput: 'QR', waktuAbsen: new Date('2026-05-18T10:28:00.000Z') },
-        { idPresensi: 'HIST003', mahasiswaNim: '535240187', sesiId: 'S104', statusKehadiran: 'TERLAMBAT', metodeInput: 'QR', waktuAbsen: new Date('2026-05-17T13:17:00.000Z') },
-        { idPresensi: 'HIST004', mahasiswaNim: '535240075', sesiId: 'S102', statusKehadiran: 'HADIR', metodeInput: 'QR', waktuAbsen: new Date('2026-05-16T08:02:00.000Z') },
-        { idPresensi: 'HIST005', mahasiswaNim: '535240075', sesiId: 'S104', statusKehadiran: 'TERLAMBAT', metodeInput: 'MANUAL', waktuAbsen: new Date('2026-05-17T13:22:00.000Z') },
-    ]
 
-    for (const p of mockAttendance) {
-        await prisma.dataPresensi.upsert({
-            where: { idPresensi: p.idPresensi },
-            update: {
-                statusKehadiran: p.statusKehadiran,
-                metodeInput: p.metodeInput,
-                waktuAbsen: p.waktuAbsen,
-                mahasiswa: { connect: { nim: p.mahasiswaNim } },
-                sesiPresensi: { connect: { idSesi: p.sesiId } },
-            },
-            create: {
-                idPresensi: p.idPresensi,
-                statusKehadiran: p.statusKehadiran,
-                metodeInput: p.metodeInput,
-                waktuAbsen: p.waktuAbsen,
-                mahasiswa: { connect: { nim: p.mahasiswaNim } },
-                sesiPresensi: { connect: { idSesi: p.sesiId } },
-            },
-        })
-    }
 
     // Seed correction tickets (permohonan) from frontend mock
     const mockTickets = [
