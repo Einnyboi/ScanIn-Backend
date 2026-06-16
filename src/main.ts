@@ -12,6 +12,7 @@ async function bootstrap() {
     process.env.FRONTEND_URL,
     'http://localhost:5173',
     'http://127.0.0.1:5173',
+    'https://scan-in-frontend.vercel.app',
   ].filter(Boolean) as string[];
 
   app.enableCors({
@@ -33,7 +34,6 @@ async function bootstrap() {
 
   await app.listen(process.env.PORT || 3000, '0.0.0.0');
 
-  app.enableCors();
   console.log(`Backend running on port ${process.env.PORT || 3000}`);
   console.log(
     `Swagger docs: http://localhost:${process.env.PORT || 3000}/api/docs`,
