@@ -329,13 +329,63 @@ export class PresensiService {
 
   // ==================== GET PRESENSI SESI ====================
   async getPresensiSesi(sesiId: string) {
-    return this.prisma.dataPresensi.findMany({
+    const sesi = await this.prisma.sesiPresensi.findUnique({
+      where: { id: sesiId },
+      include: {
+        jadwal: {
+          include: {
+            kelas: {
+              include: {
+                mahasiswa: {
+                  include: {
+                    mahasiswa: {
+                      include: { pengguna: true },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    });
+
+    if (!sesi) throw new NotFoundException('Sesi tidak ditemukan');
+
+    const enrolledStudents = sesi.jadwal.kelas.mahasiswa.map(
+      (mk) => mk.mahasiswa,
+    );
+
+    const presensiRecords = await this.prisma.dataPresensi.findMany({
       where: { sesiId },
       include: {
         mahasiswa: { include: { pengguna: true } },
       },
-      orderBy: { waktuAbsen: 'asc' },
     });
+
+    const presensiMap = new Map(
+      presensiRecords.map((p) => [p.mahasiswaId, p]),
+    );
+
+    return enrolledStudents
+      .map((student) => {
+        const p = presensiMap.get(student.id);
+        if (p) return p;
+        return {
+          mahasiswaId: student.id,
+          mahasiswa: student,
+          sesiId: sesiId,
+          statusKehadiran: StatusKehadiran.BELUM_ADA_KETERANGAN,
+          waktuAbsen: null,
+        };
+      })
+      .sort((a, b) => {
+        if (a.waktuAbsen && !b.waktuAbsen) return -1;
+        if (!a.waktuAbsen && b.waktuAbsen) return 1;
+        if (a.waktuAbsen && b.waktuAbsen)
+          return a.waktuAbsen.getTime() - b.waktuAbsen.getTime();
+        return a.mahasiswa.nim.localeCompare(b.mahasiswa.nim);
+      });
   }
 
   // ==================== GET PRESENSI MAHASISWA ====================
