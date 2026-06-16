@@ -25,11 +25,15 @@ export class SchedulesService {
   ) {}
 
   async findAll() {
-    const jadwal = await this.prisma.jadwal.findMany({
+    const schedules = await this.prisma.jadwal.findMany({
       include: {
-        kelas: { include: { mataKuliah: true } },
+        kelas: {
+          include: { mataKuliah: true },
+        },
         ruangan: true,
-        pengajar: { include: { pengguna: true } },
+        pengajar: {
+          include: { pengguna: true },
+        },
         sesiPresensi: {
           where: { statusSesi: 'AKTIF' },
           take: 1,
@@ -38,21 +42,104 @@ export class SchedulesService {
       orderBy: { jamMulai: 'asc' },
     });
 
-    return Promise.all(
-      jadwal.map(async (j) => ({
-        id: j.id,
-        day: j.hari,
-        title: j.kelas.mataKuliah.namaMatkul,
-        className: j.kelas.namaKelas,
-        time: `${this.formatTime(j.jamMulai)} - ${this.formatTime(j.jamSelesai)}`,
-        room: j.ruangan.namaRuangan,
-        lecturer: j.pengajar?.pengguna?.nama || '',
-        students: await this.enrollmentsService.countMahasiswaForKelas(
-          j.kelas.id,
-        ),
-        status: j.sesiPresensi.length > 0 ? 'active' : 'upcoming',
-      })),
+    const dtos = await Promise.all(
+      schedules.map((schedule) => this.toDto(schedule)),
     );
+    return dtos;
+  }
+
+  async getHierarchy() {
+    const courses = await this.prisma.mataKuliah.findMany({
+      include: {
+        kelas: {
+          include: {
+            jadwal: {
+              include: {
+                ruangan: true,
+                pengajar: { include: { pengguna: true } },
+                sesiPresensi: { where: { statusSesi: 'AKTIF' }, take: 1 },
+              },
+            },
+            _count: { select: { mahasiswaAssignments: true } },
+          },
+        },
+      },
+    });
+
+    return courses.map((course) => ({
+      idMatkul: course.idMatkul,
+      kodeMatkul: course.kodeMatkul,
+      namaMatkul: course.namaMatkul,
+      sks: course.sks,
+      kelas: course.kelas.map((k) => ({
+        id: k.id,
+        idKelas: k.idKelas,
+        namaKelas: k.namaKelas,
+        studentsCount: k._count.mahasiswaAssignments,
+        jadwal: k.jadwal.map((j) => ({
+          id: j.id,
+          idJadwal: j.idJadwal,
+          hari: j.hari,
+          jamMulai: this.formatTime(j.jamMulai),
+          jamSelesai: this.formatTime(j.jamSelesai),
+          ruangan: j.ruangan.namaRuangan,
+          pengajar: j.pengajar?.pengguna?.nama || '',
+          status: j.sesiPresensi.length > 0 ? 'active' : 'upcoming',
+        })),
+      })),
+    }));
+  }
+
+  async createCourse(data: { kodeMatkul: string; namaMatkul: string; sks: number }) {
+    const idMatkul = this.createCode('MK');
+    return this.prisma.mataKuliah.create({
+      data: {
+        idMatkul,
+        kodeMatkul: data.kodeMatkul,
+        namaMatkul: data.namaMatkul,
+        sks: data.sks,
+      },
+    });
+  }
+
+  async createClass(data: { namaKelas: string; idMatkul: string }) {
+    const idKelas = this.createCode('KEL');
+    const course = await this.prisma.mataKuliah.findUnique({ where: { idMatkul: data.idMatkul } });
+    if (!course) throw new NotFoundException('Mata kuliah tidak ditemukan');
+
+    return this.prisma.kelas.create({
+      data: {
+        idKelas,
+        namaKelas: data.namaKelas,
+        mataKuliahId: course.id,
+      },
+    });
+  }
+
+  async createSession(data: { kelasId: string; hari: string; time: string; room: string; lecturer?: string }) {
+    const kelas = await this.prisma.kelas.findUnique({ where: { idKelas: data.kelasId } });
+    if (!kelas) throw new NotFoundException('Kelas tidak ditemukan');
+
+    const ruangan = await this.findOrCreateRuangan(data.room);
+    const parsedTime = this.parseTimeRange(data.time, data.hari);
+    const pengajarId = data.lecturer ? (await this.findPengajarByName(data.lecturer))?.id : undefined;
+
+    const idJadwal = this.createCode('JAD');
+    return this.prisma.jadwal.create({
+      data: {
+        idJadwal,
+        hari: data.hari,
+        jamMulai: parsedTime.jamMulai,
+        jamSelesai: parsedTime.jamSelesai,
+        kelasId: kelas.id,
+        ruanganId: ruangan.id,
+        ...(pengajarId ? { pengajarId } : {}),
+      },
+      include: {
+        ruangan: true,
+        pengajar: { include: { pengguna: true } },
+      },
+    });
   }
 
   async create(schedule: ScheduleDto) {
