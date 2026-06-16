@@ -8,15 +8,9 @@ async function bootstrap() {
 
   app.useGlobalPipes(new ValidationPipe({ whitelist: true, transform: true }));
 
-  const frontendOrigins = [
-    process.env.FRONTEND_URL,
-    'http://localhost:5173',
-    'http://127.0.0.1:5173',
-    'https://scan-in-frontend.vercel.app',
-  ].filter(Boolean) as string[];
-
   app.enableCors({
-    origin: frontendOrigins,
+    origin: true,
+    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
     credentials: true,
   });
 
