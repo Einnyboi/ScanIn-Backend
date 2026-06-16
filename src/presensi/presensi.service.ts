@@ -336,7 +336,7 @@ export class PresensiService {
           include: {
             kelas: {
               include: {
-                mahasiswa: {
+                mahasiswaAssignments: {
                   include: {
                     mahasiswa: {
                       include: { pengguna: true },
@@ -352,7 +352,7 @@ export class PresensiService {
 
     if (!sesi) throw new NotFoundException('Sesi tidak ditemukan');
 
-    const enrolledStudents = sesi.jadwal.kelas.mahasiswa.map(
+    const enrolledStudents = sesi.jadwal.kelas.mahasiswaAssignments.map(
       (mk) => mk.mahasiswa,
     );
 
@@ -375,7 +375,7 @@ export class PresensiService {
           mahasiswaId: student.id,
           mahasiswa: student,
           sesiId: sesiId,
-          statusKehadiran: StatusKehadiran.BELUM_ADA_KETERANGAN,
+          statusKehadiran: 'BELUM_ADA_KETERANGAN',
           waktuAbsen: null,
         };
       })
